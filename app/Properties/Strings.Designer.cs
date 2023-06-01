@@ -511,6 +511,15 @@ namespace GHelper.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Process Fn+F hotkeys without Fn.
+        /// </summary>
+        internal static string FnLock {
+            get {
+                return ResourceManager.GetString("FnLock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Dynamic Boost.
         /// </summary>
         internal static string GPUBoost {
@@ -1011,6 +1020,15 @@ namespace GHelper.Properties {
         internal static string ToggleAura {
             get {
                 return ResourceManager.GetString("ToggleAura", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Toggle Fn-Lock.
+        /// </summary>
+        internal static string ToggleFnLock {
+            get {
+                return ResourceManager.GetString("ToggleFnLock", resourceCulture);
             }
         }
         

@@ -1,4 +1,5 @@
 ﻿using CustomControls;
+using Microsoft.VisualBasic.Devices;
 using System.Diagnostics;
 
 namespace GHelper
@@ -16,6 +17,7 @@ namespace GHelper
           {"performance", Properties.Strings.PerformanceMode},
           {"screen", Properties.Strings.ToggleScreen},
           {"miniled", Properties.Strings.ToggleMiniled},
+          {"fnlock", Properties.Strings.ToggleFnLock},
           {"custom", Properties.Strings.Custom}
         };
 
@@ -39,6 +41,10 @@ namespace GHelper
                 case "fnf4":
                     customActions[""] = Properties.Strings.ToggleAura;
                     customActions.Remove("aura");
+                    break;
+                case "fnc":
+                    customActions[""] = Properties.Strings.ToggleFnLock;
+                    customActions.Remove("fnlock");
                     break;
             }
 
@@ -93,6 +99,7 @@ namespace GHelper
             checkTopmost.Text = Properties.Strings.WindowTop;
             checkUSBC.Text = Properties.Strings.OptimizedUSBC;
             checkAutoApplyWindowsPowerMode.Text = Properties.Strings.ApplyWindowsPowerPlan;
+            checkFnLock.Text = Properties.Strings.FnLock;
 
             labelBacklight.Text = Properties.Strings.Keyboard;
             labelBacklightBar.Text = Properties.Strings.Lightbar;
@@ -110,6 +117,7 @@ namespace GHelper
             SetKeyCombo(comboM3, textM3, "m3");
             SetKeyCombo(comboM4, textM4, "m4");
             SetKeyCombo(comboFNF4, textFNF4, "fnf4");
+            SetKeyCombo(comboFNC, textFNC, "fnc");
 
             Shown += Keyboard_Shown;
 
@@ -228,7 +236,10 @@ namespace GHelper
 
         private void CheckFnLock_CheckedChanged(object? sender, EventArgs e)
         {
-            AppConfig.setConfig("fn_lock", (checkFnLock.Checked ? 1 : 0));
+            int fnLock = checkFnLock.Checked ? 1 : 0;
+            AppConfig.setConfig("fn_lock", fnLock);
+            Program.acpi.DeviceSet(AsusACPI.FnLock, (fnLock == 1) ? 0 : 1, "FnLock");
+
             Program.inputDispatcher.RegisterKeys();
         }
 

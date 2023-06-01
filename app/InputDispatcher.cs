@@ -129,6 +129,8 @@ namespace GHelper
 
         public void RegisterKeys()
         {
+            hook.UnregisterAll();
+
             // CTRL + SHIFT + F5 to cycle profiles
             if (AppConfig.getConfig("keybind_profile") != -1) keyProfile = (Keys)AppConfig.getConfig("keybind_profile");
             if (AppConfig.getConfig("keybind_app") != -1) keyApp = (Keys)AppConfig.getConfig("keybind_app");
@@ -136,20 +138,19 @@ namespace GHelper
             string actionM1 = AppConfig.getConfigString("m1");
             string actionM2 = AppConfig.getConfigString("m2");
 
-            hook.UnregisterAll();
-
             /*
             if (keyProfile != Keys.None) hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control, keyProfile);
             if (keyApp != Keys.None) hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control, keyApp);
             */
 
-            if (actionM1 is not null && actionM1.Length > 0) hook.RegisterHotKey(ModifierKeys.None, Keys.VolumeDown);
-            if (actionM2 is not null && actionM2.Length > 0) hook.RegisterHotKey(ModifierKeys.None, Keys.VolumeUp);
+            if (!AppConfig.ContainsModel("Z13"))
+                if (actionM1 is not null && actionM1.Length > 0) hook.RegisterHotKey(ModifierKeys.None, Keys.VolumeDown);
+                if (actionM2 is not null && actionM2.Length > 0) hook.RegisterHotKey(ModifierKeys.None, Keys.VolumeUp);
 
             // FN-Lock group
 
-            if (AppConfig.isConfig("fn_lock"))
-                for (Keys i = Keys.F1; i < Keys.F12; i++) hook.RegisterHotKey(ModifierKeys.None, i);
+            if (AppConfig.isConfig("fn_lock") && !AppConfig.ContainsModel("VivoBook"))
+                for (Keys i = Keys.F1; i <= Keys.F11; i++) hook.RegisterHotKey(ModifierKeys.None, i);
 
         }
 
@@ -180,17 +181,54 @@ namespace GHelper
 
             if (e.Modifier == ModifierKeys.None)
             {
-                Debug.WriteLine(e.Key);
+                Logger.WriteLine(e.Key.ToString());
+
+                if (AppConfig.ContainsModel("Z13"))
+                {
+                    switch (e.Key)
+                    {
+                        case Keys.F2:
+                            KeyboardHook.KeyPress(Keys.VolumeDown);
+                            return;
+                        case Keys.F3:
+                            KeyboardHook.KeyPress(Keys.VolumeUp);
+                            return;
+                        case Keys.F4:
+                            KeyProcess("m3");
+                            return;
+                        case Keys.F11:
+                            OptimizationEvent(199);
+                            return;
+                    }
+                }
+
+                if (AppConfig.ContainsModel("GA401I"))
+                {
+                    switch (e.Key)
+                    {
+                        case Keys.F2:
+                            KeyboardHook.KeyPress(Keys.MediaPreviousTrack);
+                            return;
+                        case Keys.F3:
+                            KeyboardHook.KeyPress(Keys.MediaPlayPause);
+                            return;
+                        case Keys.F4:
+                            KeyboardHook.KeyPress(Keys.MediaNextTrack);
+                            return;
+                    }
+                }
+
+
                 switch (e.Key)
                 {
                     case Keys.F1:
                         KeyboardHook.KeyPress(Keys.VolumeMute);
                         break;
                     case Keys.F2:
-                        HandleEvent(197);
+                        OptimizationEvent(197);
                         break;
                     case Keys.F3:
-                        HandleEvent(196);
+                        OptimizationEvent(196);
                         break;
                     case Keys.F4:
                         KeyProcess("fnf4");
@@ -202,20 +240,26 @@ namespace GHelper
                         KeyboardHook.KeyPress(Keys.Snapshot);
                         break;
                     case Keys.F7:
-                        HandleEvent(16);
+                        if (AppConfig.ContainsModel("TUF"))
+                            Program.settingsForm.BeginInvoke(Program.settingsForm.RunToast, ScreenBrightness.Adjust(-10) + "%", ToastIcon.BrightnessDown);
+                        OptimizationEvent(16);
                         break;
                     case Keys.F8:
-                        HandleEvent(32);
+                        if (AppConfig.ContainsModel("TUF")) 
+                            Program.settingsForm.BeginInvoke(Program.settingsForm.RunToast, ScreenBrightness.Adjust(+10) + "%", ToastIcon.BrightnessUp);
+                        OptimizationEvent(32);
                         break;
                     case Keys.F9:
+                        KeyboardHook.KeyWinPress(Keys.P);
                         break;
                     case Keys.F10:
-                        HandleEvent(107);
+                        OptimizationEvent(107);
                         break;
                     case Keys.F11:
-                        HandleEvent(108);
+                        OptimizationEvent(108);
                         break;
                     case Keys.F12:
+                        KeyboardHook.KeyWinPress(Keys.A);
                         break;
                     case Keys.VolumeDown:
                         KeyProcess("m1");
@@ -268,8 +312,8 @@ namespace GHelper
                         Program.SettingsToggle();
                     });
                     break;
-                case "custom":
-                    CustomKey(name);
+                case "fnlock":
+                    ToggleFnLock();
                     break;
                 case "micmute":
                     using (var enumerator = new MMDeviceEnumerator())
@@ -279,6 +323,9 @@ namespace GHelper
                         commDevice.AudioEndpointVolume.Mute = muteStatus;
                         Program.settingsForm.BeginInvoke(Program.settingsForm.RunToast, muteStatus ? "Muted" : "Unmuted", muteStatus ? ToastIcon.MicrophoneMute : ToastIcon.Microphone);
                     }
+                    break;
+                case "custom":
+                    CustomKey(name);
                     break;
 
                 default:
@@ -301,6 +348,8 @@ namespace GHelper
                     action = "performance";
                 if (name == "m3" && !OptimizationService.IsRunning())
                     action = "micmute";
+                if (name == "fnc")
+                    action = "fnlock";
             }
 
             RunAction(action, name);
@@ -312,6 +361,19 @@ namespace GHelper
             {
                 return (key?.GetValue("Enabled")?.ToString() == "1");
             }
+        }
+
+        static void ToggleFnLock()
+        {
+            int fnLock = AppConfig.isConfig("fn_lock") ? 0 : 1;
+            AppConfig.setConfig("fn_lock", fnLock);
+
+            if (AppConfig.ContainsModel("VivoBook"))
+                Program.acpi.DeviceSet(AsusACPI.FnLock, (fnLock == 1) ? 0 : 1, "FnLock");
+            else
+                Program.settingsForm.BeginInvoke(Program.inputDispatcher.RegisterKeys);
+
+            Program.settingsForm.BeginInvoke(Program.settingsForm.RunToast, "Fn-Lock "+(fnLock==1?"On":"Off"), ToastIcon.FnLock);
         }
 
         static void TabletMode()
@@ -366,12 +428,22 @@ namespace GHelper
                 case 178:   // FN+F4
                     KeyProcess("fnf4");
                     return;
+                case 158:   // Fn + C
+                    KeyProcess("fnc");
+                    return;
+                case 78:    // Fn + ESC
+                    ToggleFnLock();
+                    return;
                 case 189: // Tablet mode 
                     TabletMode();
                     return;
             }
 
-            if (OptimizationService.IsRunning()) return;
+            if (!OptimizationService.IsRunning()) OptimizationEvent(EventID);
+        }
+
+        static void OptimizationEvent(int EventID)
+        { 
 
             // Asus Optimization service Events 
 

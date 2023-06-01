@@ -1305,13 +1305,10 @@ namespace GHelper
 
             int backlight = AppConfig.getConfig("keyboard_brightness");
 
-            if (backlight > 0)
-            {
-                if (AppConfig.isConfig("keyboard_auto") && SystemInformation.PowerStatus.PowerLineStatus != PowerLineStatus.Online)
-                    AsusUSB.ApplyBrightness(1);
-                else
-                    AsusUSB.ApplyBrightness(backlight);
-            }
+            if (AppConfig.isConfig("keyboard_auto") && SystemInformation.PowerStatus.PowerLineStatus != PowerLineStatus.Online)
+                AsusUSB.ApplyBrightness(0);
+            else
+                AsusUSB.ApplyBrightness(backlight);
 
 
         }
