@@ -3,6 +3,7 @@ using Microsoft.Win32;
 using NAudio.CoreAudioApi;
 using System.Diagnostics;
 using System.Management;
+using System.Xml.Linq;
 
 namespace GHelper
 {
@@ -137,8 +138,10 @@ namespace GHelper
 
             hook.UnregisterAll();
 
+            /*
             if (keyProfile != Keys.None) hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control, keyProfile);
             if (keyApp != Keys.None) hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control, keyApp);
+            */
 
             if (actionM1 is not null && actionM1.Length > 0) hook.RegisterHotKey(ModifierKeys.None, Keys.VolumeDown);
             if (actionM2 is not null && actionM2.Length > 0) hook.RegisterHotKey(ModifierKeys.None, Keys.VolumeUp);
@@ -234,23 +237,8 @@ namespace GHelper
 
         }
 
-
-        public static void KeyProcess(string name = "m3")
+        private static void RunAction(string? action, string? name)
         {
-            string action = AppConfig.getConfigString(name);
-
-            if (action is null || action.Length <= 1)
-            {
-                if (name == "m4")
-                    action = "ghelper";
-                if (name == "fnf4")
-                    action = "aura";
-                if (name == "fnf5")
-                    action = "performance";
-                if (name == "m3" && !OptimizationService.IsRunning())
-                    action = "micmute";
-            }
-
             switch (action)
             {
                 case "mute":
@@ -298,6 +286,26 @@ namespace GHelper
             }
         }
 
+
+        public static void KeyProcess(string name = "m3")
+        {
+            string action = AppConfig.getConfigString(name);
+
+            if (action is null || action.Length <= 1)
+            {
+                if (name == "m4")
+                    action = "ghelper";
+                if (name == "fnf4")
+                    action = "aura";
+                if (name == "fnf5")
+                    action = "performance";
+                if (name == "m3" && !OptimizationService.IsRunning())
+                    action = "micmute";
+            }
+
+            RunAction(action, name);
+        }
+
         static bool GetTouchpadState()
         {
             using (var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\PrecisionTouchPad\Status", false))
@@ -322,9 +330,33 @@ namespace GHelper
             switch (EventID)
             {
                 case 124:    // M3
+                    if (Control.ModifierKeys == Keys.Control)
+                    {
+                        Program.settingsForm.BeginInvoke(Program.settingsForm.ShowGPUMode);
+                        return;
+                    }
+
+                    if (Control.ModifierKeys == (Keys.Control | Keys.Shift))
+                    {
+                        Program.settingsForm.BeginInvoke(Program.settingsForm.ToggleGpuEcoStandard);
+                        return;
+                    }
+
                     KeyProcess("m3");
                     return;
                 case 56:    // M4 / Rog button
+                    if (Control.ModifierKeys == (Keys.Control | Keys.Shift))
+                    {
+                        Program.settingsForm.BeginInvoke(Program.settingsForm.ToggleScreen);
+                        return;
+                    }
+
+                    if (Control.ModifierKeys == Keys.Control)
+                    {
+                        Program.settingsForm.BeginInvoke(Program.settingsForm.ShowScreenHz);
+                        return;
+                    }
+
                     KeyProcess("m4");
                     return;
                 case 174:   // FN+F5
