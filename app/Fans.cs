@@ -1,5 +1,6 @@
 ﻿using CustomControls;
 using GHelper.Gpu;
+using System;
 using System.Diagnostics;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -8,7 +9,9 @@ namespace GHelper
     public partial class Fans : RForm
     {
 
+        int curIndex = -1;
         DataPoint curPoint = null;
+
         Series seriesCPU;
         Series seriesGPU;
         Series seriesMid;
@@ -357,17 +360,9 @@ namespace GHelper
         {
             if (sender is null) return;
             CheckBox chk = (CheckBox)sender;
-            AppConfig.setConfigPerf("auto_apply_power", chk.Checked ? 1 : 0);
 
-            if (chk.Checked)
-            {
-                Program.settingsForm.AutoPower();
-            }
-            else
-            {
-                Program.acpi.DeviceSet(AsusACPI.PerformanceMode, AppConfig.getConfig("performance_mode"), "PerfMode");
-                Program.settingsForm.AutoFans();
-            }
+            AppConfig.setConfigPerf("auto_apply_power", chk.Checked ? 1 : 0);
+            Program.settingsForm.SetPerformanceMode();
 
         }
 
@@ -377,16 +372,8 @@ namespace GHelper
             CheckBox chk = (CheckBox)sender;
 
             AppConfig.setConfigPerf("auto_apply", chk.Checked ? 1 : 0);
+            Program.settingsForm.SetPerformanceMode();
 
-            if (chk.Checked)
-            {
-                Program.settingsForm.AutoFans();
-            }
-            else
-            {
-                Program.acpi.DeviceSet(AsusACPI.PerformanceMode, AppConfig.getConfig("performance_mode"), "PerfMode");
-                Program.settingsForm.AutoPower();
-            }
         }
 
 
@@ -437,7 +424,7 @@ namespace GHelper
             int limit_cpu;
             int limit_fast;
 
-            bool apply = AppConfig.getConfigPerf("auto_apply_power") == 1;
+            bool apply = AppConfig.isConfigPerf("auto_apply_power");
 
             if (changed)
             {
@@ -618,27 +605,35 @@ namespace GHelper
             AppConfig.setConfigPerf("auto_apply", 0);
             AppConfig.setConfigPerf("auto_apply_power", 0);
 
-            Program.acpi.DeviceSet(AsusACPI.PerformanceMode, AppConfig.getConfig("performance_mode"), "PerfMode");
-            if (Program.acpi.IsXGConnected()) AsusUSB.ResetXGM();
+            Program.acpi.DeviceSet(AsusACPI.PerformanceMode, AppConfig.getConfig("performance_mode"), "Mode");
+            
+            if (Program.acpi.IsXGConnected()) 
+                AsusUSB.ResetXGM();
 
-            trackGPUCore.Value = 0;
-            trackGPUMemory.Value = 0;
-            trackGPUBoost.Value = AsusACPI.MaxGPUBoost;
-            trackGPUTemp.Value = AsusACPI.MaxGPUTemp;
+            if (gpuVisible)
+            {
+                trackGPUCore.Value = 0;
+                trackGPUMemory.Value = 0;
+                trackGPUBoost.Value = AsusACPI.MaxGPUBoost;
+                trackGPUTemp.Value = AsusACPI.MaxGPUTemp;
 
-            AppConfig.setConfigPerf("gpu_boost", trackGPUBoost.Value);
-            AppConfig.setConfigPerf("gpu_temp", trackGPUTemp.Value);
-            AppConfig.setConfigPerf("gpu_core", trackGPUCore.Value);
-            AppConfig.setConfigPerf("gpu_memory", trackGPUMemory.Value);
-            VisualiseGPUSettings();
+                AppConfig.setConfigPerf("gpu_boost", trackGPUBoost.Value);
+                AppConfig.setConfigPerf("gpu_temp", trackGPUTemp.Value);
+                AppConfig.setConfigPerf("gpu_core", trackGPUCore.Value);
+                AppConfig.setConfigPerf("gpu_memory", trackGPUMemory.Value);
 
-            Program.settingsForm.SetGPUClocks(true);
-            Program.settingsForm.SetGPUPower();
+                VisualiseGPUSettings();
+                Program.settingsForm.SetGPUClocks(true);
+                Program.settingsForm.SetGPUPower();
+            }
+
         }
 
         private void ChartCPU_MouseUp(object? sender, MouseEventArgs e)
         {
             curPoint = null;
+            curIndex = -1;
+
             labelTip.Visible = false;
 
             SaveProfile(seriesCPU, AsusFan.CPU);
@@ -668,9 +663,12 @@ namespace GHelper
             bool tip = false;
 
             HitTestResult hit = chart.HitTest(e.X, e.Y);
+            Series series = chart.Series[0];
+
             if (hit.Series is not null && hit.PointIndex >= 0)
             {
-                curPoint = hit.Series.Points[hit.PointIndex];
+                curIndex = hit.PointIndex;
+                curPoint = hit.Series.Points[curIndex];
                 tip = true;
             }
 
@@ -697,11 +695,18 @@ namespace GHelper
 
                     if (e.Button.HasFlag(MouseButtons.Left))
                     {
-                        curPoint.XValue = dx;
-                        curPoint.YValues[0] = dy;
+                        double deltaY = dy - curPoint.YValues[0];
+                        double deltaX = dx - curPoint.XValue;
 
-                        if (hit.Series is not null)
-                            AdjustAllLevels(hit.PointIndex, dx, dy, hit.Series);
+                        curPoint.XValue = dx;
+
+                        if (Control.ModifierKeys == Keys.Shift)
+                            AdjustAll(0, deltaY, series);
+                        else
+                        {
+                            curPoint.YValues[0] = dy;
+                            AdjustAllLevels(curIndex, dx, dy, series);
+                        }
 
                         tip = true;
                     }
@@ -722,6 +727,15 @@ namespace GHelper
             labelTip.Visible = tip;
 
 
+        }
+
+        private void AdjustAll(double deltaX, double deltaY, Series series)
+        {
+            for (int i = 0; i < series.Points.Count; i++)
+            {
+                series.Points[i].XValue = Math.Max(20, Math.Min(100, series.Points[i].XValue + deltaX));
+                series.Points[i].YValues[0] = Math.Max(0, Math.Min(100, series.Points[i].YValues[0]+deltaY));
+            }
         }
 
         private void AdjustAllLevels(int index, double curXVal, double curYVal, Series series)

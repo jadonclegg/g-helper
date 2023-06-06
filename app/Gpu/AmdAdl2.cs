@@ -1,9 +1,36 @@
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using static AmdAdl2.Adl2.NativeMethods;
 
 namespace AmdAdl2;
 
 #region Export Struct
+
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+public struct ADLSGApplicationInfo
+{
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+    public string strFileName;
+
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+    public string strFilePath;
+
+    [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+    public string strVersion;
+
+    public long timeStamp;
+    public uint iProfileExists;
+    public uint iGPUAffinity;
+    public ADLBdf GPUBdf;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct ADLBdf
+{
+    public int iBus;
+    public int iDevice;
+    public int iFunction;
+}
 
 [StructLayout(LayoutKind.Sequential)]
 public struct ADLSingleSensorData {
@@ -481,5 +508,71 @@ public class Adl2 {
 
         [DllImport(Atiadlxx_FileName)]
         public static extern int ADL2_Adapter_ASICFamilyType_Get(IntPtr adlContextHandle, int adapterIndex, out ADLAsicFamilyType asicFamilyType, out int asicFamilyTypeValids);
+
+        [DllImport(Atiadlxx_FileName)]
+        public static extern int ADL2_SwitchableGraphics_Applications_Get(
+            IntPtr context,
+            int iListType,
+            out int lpNumApps,
+            out IntPtr lppAppList);
+
+        [DllImport(Atiadlxx_FileName)]
+        public static extern int ADL2_Adapter_VariBright_Caps(
+            IntPtr context,
+            int iAdapterIndex,
+            out int iSupported,
+            out int iEnabled,
+            out int iVersion);
+
+        [DllImport(Atiadlxx_FileName)]
+        public static extern int ADL2_Adapter_VariBrightEnable_Set(
+            IntPtr context,
+            int iAdapterIndex,
+            int iEnabled);
+
+        // Clocks
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ADLODNPerformanceLevel
+        {
+            public int iClock;
+            public int iVddc;
+            public int iEnabled;
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct ADLODNPerformanceLevels
+        {
+            public int iSize;
+            public int iMode;
+            public int iNumberOfPerformanceLevels;
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1)]
+            public ADLODNPerformanceLevel[] aLevels;
+        }
+
+
+        [DllImport(Atiadlxx_FileName)]
+        public static extern int ADL2_OverdriveN_SystemClocks_Get(
+            IntPtr context,
+            int adapterIndex,
+            ref ADLODNPerformanceLevels performanceLevels);
+
+        [DllImport(Atiadlxx_FileName)]
+        public static extern int ADL2_OverdriveN_SystemClocks_Set(
+            IntPtr context,
+            int adapterIndex,
+            ref ADLODNPerformanceLevels performanceLevels);
+
+        [DllImport(Atiadlxx_FileName)]
+        public static extern int ADL2_OverdriveN_MemoryClocks_Get(
+            IntPtr context,
+            int adapterIndex,
+            ref ADLODNPerformanceLevels performanceLevels);
+
+        [DllImport(Atiadlxx_FileName)]
+        public static extern int ADL2_OverdriveN_MemoryClocks_Set(
+            IntPtr context,
+            int adapterIndex,
+            ref ADLODNPerformanceLevels performanceLevels);
     }
 }

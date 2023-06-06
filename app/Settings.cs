@@ -6,7 +6,6 @@ using System.Net;
 using System.Reflection;
 using System.Text.Json;
 using System.Timers;
-using Tools;
 
 namespace GHelper
 {
@@ -29,11 +28,14 @@ namespace GHelper
         public AniMatrix matrix;
         public Fans fans;
         public Extra keyb;
+        public Updates updates;
 
         static long lastRefresh;
 
         private bool customFans = false;
         private int customPower = 0;
+
+        bool isGpuSection = true;
 
         public SettingsForm()
         {
@@ -70,6 +72,7 @@ namespace GHelper
 
             buttonMatrix.Text = Properties.Strings.PictureGif;
             buttonQuit.Text = Properties.Strings.Quit;
+            buttonUpdates.Text = Properties.Strings.Updates;
 
             FormClosing += SettingsForm_FormClosing;
 
@@ -156,6 +159,8 @@ namespace GHelper
             button120Hz.MouseMove += Button120Hz_MouseHover;
             button120Hz.MouseLeave += ButtonScreen_MouseLeave;
 
+            buttonUpdates.Click += ButtonUpdates_Click;
+
             sliderBattery.ValueChanged += SliderBattery_ValueChanged;
             Program.trayIcon.MouseMove += TrayIcon_MouseMove;
 
@@ -169,7 +174,7 @@ namespace GHelper
             int trim = model.LastIndexOf("_");
             if (trim > 0) model = model.Substring(0, trim);
 
-            labelModel.Text = model + (Program.IsUserAdministrator() ? "." : "");
+            labelModel.Text = model + (ProcessHelper.IsUserAdministrator() ? "." : "");
 
             TopMost = AppConfig.getConfig("topmost") == 1;
 
@@ -183,6 +188,18 @@ namespace GHelper
 
         }
 
+        private void ButtonUpdates_Click(object? sender, EventArgs e)
+        {
+            if (updates == null || updates.Text == "")
+            {
+                updates = new Updates();
+                updates.Show();
+            }
+            else
+            {
+                updates.Close();
+            }
+        }
 
         protected override void WndProc(ref Message m)
         {
@@ -257,32 +274,36 @@ namespace GHelper
 
             contextMenuStrip.Items.Add("-");
 
-            var titleGPU = new ToolStripMenuItem(Properties.Strings.GPUMode);
-            titleGPU.Margin = padding;
-            titleGPU.Enabled = false;
-            contextMenuStrip.Items.Add(titleGPU);
+            if (isGpuSection)
+            {
+                var titleGPU = new ToolStripMenuItem(Properties.Strings.GPUMode);
+                titleGPU.Margin = padding;
+                titleGPU.Enabled = false;
+                contextMenuStrip.Items.Add(titleGPU);
 
-            menuEco = new ToolStripMenuItem(Properties.Strings.EcoMode);
-            menuEco.Click += ButtonEco_Click;
-            menuEco.Margin = padding;
-            contextMenuStrip.Items.Add(menuEco);
+                menuEco = new ToolStripMenuItem(Properties.Strings.EcoMode);
+                menuEco.Click += ButtonEco_Click;
+                menuEco.Margin = padding;
+                contextMenuStrip.Items.Add(menuEco);
 
-            menuStandard = new ToolStripMenuItem(Properties.Strings.StandardMode);
-            menuStandard.Click += ButtonStandard_Click;
-            menuStandard.Margin = padding;
-            contextMenuStrip.Items.Add(menuStandard);
+                menuStandard = new ToolStripMenuItem(Properties.Strings.StandardMode);
+                menuStandard.Click += ButtonStandard_Click;
+                menuStandard.Margin = padding;
+                contextMenuStrip.Items.Add(menuStandard);
 
-            menuUltimate = new ToolStripMenuItem(Properties.Strings.UltimateMode);
-            menuUltimate.Click += ButtonUltimate_Click;
-            menuUltimate.Margin = padding;
-            contextMenuStrip.Items.Add(menuUltimate);
+                menuUltimate = new ToolStripMenuItem(Properties.Strings.UltimateMode);
+                menuUltimate.Click += ButtonUltimate_Click;
+                menuUltimate.Margin = padding;
+                contextMenuStrip.Items.Add(menuUltimate);
 
-            menuOptimized = new ToolStripMenuItem(Properties.Strings.Optimized);
-            menuOptimized.Click += ButtonOptimized_Click;
-            menuOptimized.Margin = padding;
-            contextMenuStrip.Items.Add(menuOptimized);
+                menuOptimized = new ToolStripMenuItem(Properties.Strings.Optimized);
+                menuOptimized.Click += ButtonOptimized_Click;
+                menuOptimized.Margin = padding;
+                contextMenuStrip.Items.Add(menuOptimized);
 
-            contextMenuStrip.Items.Add("-");
+                contextMenuStrip.Items.Add("-");
+            }
+
 
             var quit = new ToolStripMenuItem(Properties.Strings.Quit);
             quit.Click += ButtonQuit_Click;
@@ -332,7 +353,7 @@ namespace GHelper
                     Program.acpi.DeviceSet(AsusACPI.GPUXG, 1, "GPU XGM");
                     await Task.Delay(TimeSpan.FromSeconds(15));
 
-                    if (AppConfig.getConfigPerf("auto_apply") == 1)
+                    if (AppConfig.isConfigPerf("auto_apply"))
                         AsusUSB.SetXGMFan(AppConfig.getFanConfig(AsusFan.XGM));
                 }
 
@@ -368,7 +389,8 @@ namespace GHelper
 
                     string url = null;
 
-                    for (int i = 0; i < assets.GetArrayLength(); i++) {
+                    for (int i = 0; i < assets.GetArrayLength(); i++)
+                    {
                         if (assets[i].GetProperty("browser_download_url").ToString().Contains(".zip"))
                             url = assets[i].GetProperty("browser_download_url").ToString();
                     }
@@ -929,12 +951,23 @@ namespace GHelper
             Application.Exit();
         }
 
+        public void HideAll()
+        {
+            this.Hide();
+            if (fans != null && fans.Text != "") fans.Close();
+            if (keyb != null && keyb.Text != "") keyb.Close();
+        }
+
+        public void CloseOthers()
+        {
+        }
+
         private void SettingsForm_FormClosing(object? sender, FormClosingEventArgs e)
         {
             if (e.CloseReason == CloseReason.UserClosing)
             {
                 e.Cancel = true;
-                Hide();
+                HideAll();
             }
         }
 
@@ -1087,7 +1120,7 @@ namespace GHelper
                 }
 
                 int setStatus = nvControl.SetClocks(gpu_core, gpu_memory);
-                if (launchAsAdmin && setStatus == -1) Program.RunAsAdmin("gpu");
+                if (launchAsAdmin && setStatus == -1) ProcessHelper.RunAsAdmin("gpu");
 
             }
             catch (Exception ex)
@@ -1129,7 +1162,7 @@ namespace GHelper
         {
             customFans = false;
 
-            if (AppConfig.getConfigPerf("auto_apply") == 1 || force)
+            if (AppConfig.isConfigPerf("auto_apply") || force)
             {
 
                 bool xgmFan = false;
@@ -1152,7 +1185,7 @@ namespace GHelper
                 {
                     int mode = AppConfig.getConfig("performance_mode");
                     Logger.WriteLine("ASUS BIOS rejected fan curve, resetting mode to " + mode);
-                    Program.acpi.DeviceSet(AsusACPI.PerformanceMode, mode, "PerformanceMode");
+                    Program.acpi.DeviceSet(AsusACPI.PerformanceMode, mode, "Reset Mode");
                     LabelFansResult("ASUS BIOS rejected fan curve");
                 }
                 else
@@ -1161,8 +1194,8 @@ namespace GHelper
                     customFans = true;
                 }
 
-                // fix for misbehaving bios on intell based TUF 2022
-                if ((AppConfig.ContainsModel("FX507") || AppConfig.ContainsModel("FX517") || xgmFan) && AppConfig.getConfigPerf("auto_apply_power") != 1)
+                // force set PPTs for missbehaving bios on FX507/517 series
+                if ((AppConfig.ContainsModel("FX507") || AppConfig.ContainsModel("FX517") || xgmFan) && !AppConfig.isConfigPerf("auto_apply_power"))
                 {
                     Task.Run(async () =>
                     {
@@ -1178,20 +1211,43 @@ namespace GHelper
 
         }
 
+        private static bool isManualModeRequired()
+        {
+            if (!AppConfig.isConfigPerf("auto_apply_power")) 
+                return false;
+            
+            return
+                //AppConfig.ContainsModel("GA402") ||
+                AppConfig.ContainsModel("GU604") || 
+                AppConfig.ContainsModel("FX517") || 
+                AppConfig.ContainsModel("G733");
+        }
+
         public void AutoPower(int delay = 0)
         {
 
-            // fix for misbehaving bios PPTs on G513
-            if (AppConfig.ContainsModel("G513") && AppConfig.getConfigPerf("auto_apply") != 1)
-            {
-                AutoFans(true);
-                delay = 500;
-            }
-
             customPower = 0;
 
-            bool applyPower = AppConfig.getConfigPerf("auto_apply_power") == 1;
-            bool applyGPU = true;
+            bool applyPower = AppConfig.isConfigPerf("auto_apply_power");
+            bool applyFans = AppConfig.isConfigPerf("auto_apply");
+            //bool applyGPU = true;
+
+            if (applyPower)
+            {
+                // force fan curve for misbehaving bios PPTs on G513
+                if (AppConfig.ContainsModel("G513") && !applyFans)
+                {
+                    delay = 500;
+                    AutoFans(true);
+                }
+
+                // Fix for models that don't support PPT settings in all modes, setting a "manual" mode for them
+                if (isManualModeRequired())
+                {
+                    delay = 500;
+                    if (!applyFans) AutoFans(true);
+                }
+            }
 
             if (delay > 0)
             {
@@ -1217,8 +1273,8 @@ namespace GHelper
         public void SetPerformanceMode(int PerformanceMode = -1, bool notify = false)
         {
 
-            if (PerformanceMode < 0)
-                PerformanceMode = AppConfig.getConfig("performance_mode");
+            int oldMode = AppConfig.getConfig("performance_mode");
+            if (PerformanceMode < 0) PerformanceMode = oldMode;
 
             buttonSilent.Activated = false;
             buttonBalanced.Activated = false;
@@ -1245,11 +1301,14 @@ namespace GHelper
             menuBalanced.Checked = buttonBalanced.Activated;
             menuTurbo.Checked = buttonTurbo.Activated;
 
-            int oldMode = AppConfig.getConfig("performance_mode");
             AppConfig.setConfig("performance_" + (int)SystemInformation.PowerStatus.PowerLineStatus, PerformanceMode);
             AppConfig.setConfig("performance_mode", PerformanceMode);
 
-            Program.acpi.DeviceSet(AsusACPI.PerformanceMode, PerformanceMode, "PerformanceMode");
+            if (isManualModeRequired())
+                Program.acpi.DeviceSet(AsusACPI.PerformanceMode, AsusACPI.PerformanceManual, "Manual Mode");
+            else
+                Program.acpi.DeviceSet(AsusACPI.PerformanceMode, PerformanceMode, "Mode");
+
             if (AppConfig.isConfig("xgm_fan") && Program.acpi.IsXGConnected()) AsusUSB.ResetXGM();
 
             if (notify && (oldMode != PerformanceMode))
@@ -1313,6 +1372,8 @@ namespace GHelper
         public void AutoKeyboard()
         {
             InputDispatcher.SetBacklightAuto(true);
+            if (AppConfig.ContainsModel("X16") || AppConfig.ContainsModel("X13")) InputDispatcher.TabletMode();
+
         }
 
         public void AutoPerformance()
@@ -1478,10 +1539,11 @@ namespace GHelper
 
                 UltimateUI(mux == 1);
 
-                if (eco < 0)
+                if (eco < 0 && mux < 0)
                 {
-                    tableGPU.Visible = false;
-                    if (Program.acpi.DeviceGet(AsusACPI.GPU_Fan) < 0) panelGPU.Visible = false;
+                    isGpuSection = tableGPU.Visible = false;
+                    SetContextMenu();
+                    if (HardwareControl.FormatFan(Program.acpi.DeviceGet(AsusACPI.GPU_Fan)) is null) panelGPU.Visible = false;
                 }
 
             }
@@ -1512,9 +1574,9 @@ namespace GHelper
                 if (dialogResult == DialogResult.No) return;
             }
 
-            Program.RunAsAdmin("gpurestart");
+            ProcessHelper.RunAsAdmin("gpurestart");
 
-            if (!Program.IsUserAdministrator()) return;
+            if (!ProcessHelper.IsUserAdministrator()) return;
 
             Logger.WriteLine("Trying to restart dGPU");
 

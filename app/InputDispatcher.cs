@@ -377,7 +377,7 @@ namespace GHelper
             Program.settingsForm.BeginInvoke(Program.settingsForm.RunToast, "Fn-Lock "+(fnLock==1?"On":"Off"), ToastIcon.FnLock);
         }
 
-        static void TabletMode()
+        public static void TabletMode()
         {
             bool touchpadState = GetTouchpadState();
             bool tabletState = Program.acpi.DeviceGet(AsusACPI.TabletState) > 0;
@@ -461,7 +461,8 @@ namespace GHelper
         public static void SetBacklightAuto(bool init = false)
         {
             if (init) AsusUSB.Init();
-            AsusUSB.ApplyBrightness(GetBacklight(), "Auto");
+
+            if (!OptimizationService.IsRunning()) AsusUSB.ApplyBrightness(GetBacklight(), "Auto");
         }
 
         public static void SetBacklight(int delta)

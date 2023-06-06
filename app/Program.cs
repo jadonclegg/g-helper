@@ -25,7 +25,6 @@ namespace GHelper
 
         private static long lastAuto;
         private static long lastTheme;
-        private static long lastAdmin;
 
         public static InputDispatcher inputDispatcher;
 
@@ -48,7 +47,7 @@ namespace GHelper
             Debug.WriteLine(CultureInfo.CurrentUICulture);
             //Thread.CurrentThread.CurrentUICulture = CultureInfo.CreateSpecificCulture("fr");
 
-            CheckProcesses();
+            ProcessHelper.CheckAlreadyRunning();
 
             try
             {
@@ -67,7 +66,7 @@ namespace GHelper
             }
 
             Logger.WriteLine("------------");
-            Logger.WriteLine("App launched: " + AppConfig.GetModel() + " :" + Assembly.GetExecutingAssembly().GetName().Version.ToString() + CultureInfo.CurrentUICulture + (IsUserAdministrator() ? "." : ""));
+            Logger.WriteLine("App launched: " + AppConfig.GetModel() + " :" + Assembly.GetExecutingAssembly().GetName().Version.ToString() + CultureInfo.CurrentUICulture + (ProcessHelper.IsUserAdministrator() ? "." : ""));
 
             Application.EnableVisualStyles();
 
@@ -100,8 +99,6 @@ namespace GHelper
                 SettingsToggle(action);
             }
 
-
-
             Application.Run();
 
         }
@@ -128,6 +125,9 @@ namespace GHelper
 
                     if (settingsForm.keyb is not null && settingsForm.keyb.Text != "")
                         settingsForm.keyb.InitTheme();
+
+                    if (settingsForm.updates is not null && settingsForm.updates.Text != "")
+                        settingsForm.updates.InitTheme();
 
                     break;
             }
@@ -174,8 +174,7 @@ namespace GHelper
 
         public static void SettingsToggle(string action = "")
         {
-            if (settingsForm.Visible)
-                settingsForm.Hide();
+            if (settingsForm.Visible) settingsForm.HideAll();
             else
             {
                 settingsForm.Show();
@@ -214,55 +213,6 @@ namespace GHelper
         }
 
 
-        static void CheckProcesses()
-        {
-            Process currentProcess = Process.GetCurrentProcess();
-            Process[] processes = Process.GetProcessesByName(currentProcess.ProcessName);
-
-            if (processes.Length > 1)
-            {
-                foreach (Process process in processes)
-                    if (process.Id != currentProcess.Id)
-                        try
-                        {
-                            process.Kill();
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.WriteLine(ex.ToString());
-                            MessageBox.Show(Properties.Strings.AppAlreadyRunningText, Properties.Strings.AppAlreadyRunning, MessageBoxButtons.OK);
-                            Application.Exit();
-                            return;
-                        }
-            }
-        }
-
-        public static bool IsUserAdministrator()
-        {
-            WindowsIdentity identity = WindowsIdentity.GetCurrent();
-            WindowsPrincipal principal = new WindowsPrincipal(identity);
-            return principal.IsInRole(WindowsBuiltInRole.Administrator);
-        }
-
-        public static void RunAsAdmin(string? param = null)
-        {
-
-            if (Math.Abs(DateTimeOffset.Now.ToUnixTimeMilliseconds() - lastAdmin) < 2000) return;
-            lastAdmin = DateTimeOffset.Now.ToUnixTimeMilliseconds();
-
-            // Check if the current user is an administrator
-            if (!IsUserAdministrator())
-            {
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                startInfo.UseShellExecute = true;
-                startInfo.WorkingDirectory = Environment.CurrentDirectory;
-                startInfo.FileName = Application.ExecutablePath;
-                startInfo.Arguments = param;
-                startInfo.Verb = "runas";
-                Process.Start(startInfo);
-                Application.Exit();
-            }
-        }
     }
 
 }
