@@ -176,7 +176,7 @@ namespace GHelper
 
             labelModel.Text = model + (ProcessHelper.IsUserAdministrator() ? "." : "");
 
-            TopMost = AppConfig.getConfig("topmost") == 1;
+            TopMost = AppConfig.isConfig("topmost");
 
             SetContextMenu();
 
@@ -247,8 +247,9 @@ namespace GHelper
         public void SetContextMenu()
         {
 
-            contextMenuStrip.Items.Clear();
+            var mode = AppConfig.getConfig("performance_mode");
 
+            contextMenuStrip.Items.Clear();
             Padding padding = new Padding(15, 5, 5, 5);
 
             var title = new ToolStripMenuItem(Properties.Strings.PerformanceMode);
@@ -259,17 +260,19 @@ namespace GHelper
             menuSilent = new ToolStripMenuItem(Properties.Strings.Silent);
             menuSilent.Click += ButtonSilent_Click;
             menuSilent.Margin = padding;
+            menuSilent.Checked = (mode == AsusACPI.PerformanceSilent);
             contextMenuStrip.Items.Add(menuSilent);
 
             menuBalanced = new ToolStripMenuItem(Properties.Strings.Balanced);
             menuBalanced.Click += ButtonBalanced_Click;
             menuBalanced.Margin = padding;
+            menuBalanced.Checked = (mode == AsusACPI.PerformanceBalanced);
             contextMenuStrip.Items.Add(menuBalanced);
 
             menuTurbo = new ToolStripMenuItem(Properties.Strings.Turbo);
             menuTurbo.Click += ButtonTurbo_Click;
-            menuTurbo.Checked = true;
             menuTurbo.Margin = padding;
+            menuTurbo.Checked = (mode == AsusACPI.PerformanceTurbo);
             contextMenuStrip.Items.Add(menuTurbo);
 
             contextMenuStrip.Items.Add("-");
@@ -1217,7 +1220,7 @@ namespace GHelper
                 return false;
             
             return
-                //AppConfig.ContainsModel("GA402") ||
+                AppConfig.isConfig("manual_mode") ||
                 AppConfig.ContainsModel("GU604") || 
                 AppConfig.ContainsModel("FX517") || 
                 AppConfig.ContainsModel("G733");
@@ -1242,10 +1245,9 @@ namespace GHelper
                 }
 
                 // Fix for models that don't support PPT settings in all modes, setting a "manual" mode for them
-                if (isManualModeRequired())
+                if (isManualModeRequired() && !applyFans)
                 {
-                    delay = 500;
-                    if (!applyFans) AutoFans(true);
+                    AutoFans(true);
                 }
             }
 
@@ -1280,28 +1282,33 @@ namespace GHelper
             buttonBalanced.Activated = false;
             buttonTurbo.Activated = false;
 
+            menuSilent.Checked = false;
+            menuBalanced.Checked = false;
+            menuTurbo.Checked = false;
+
             switch (PerformanceMode)
             {
                 case AsusACPI.PerformanceSilent:
                     buttonSilent.Activated = true;
+                    menuSilent.Checked = true;
                     perfName = Properties.Strings.Silent;
                     break;
                 case AsusACPI.PerformanceTurbo:
                     buttonTurbo.Activated = true;
+                    menuTurbo.Checked = true;
                     perfName = Properties.Strings.Turbo;
                     break;
                 default:
                     buttonBalanced.Activated = true;
-                    PerformanceMode = AsusACPI.PerformanceBalanced;
+                    menuBalanced.Checked = true;
                     perfName = Properties.Strings.Balanced;
+                    PerformanceMode = AsusACPI.PerformanceBalanced;
                     break;
             }
 
-            menuSilent.Checked = buttonSilent.Activated;
-            menuBalanced.Checked = buttonBalanced.Activated;
-            menuTurbo.Checked = buttonTurbo.Activated;
+            var powerStatus = SystemInformation.PowerStatus.PowerLineStatus;
 
-            AppConfig.setConfig("performance_" + (int)SystemInformation.PowerStatus.PowerLineStatus, PerformanceMode);
+            AppConfig.setConfig("performance_" + (int)powerStatus, PerformanceMode);
             AppConfig.setConfig("performance_mode", PerformanceMode);
 
             if (isManualModeRequired())
@@ -1311,11 +1318,11 @@ namespace GHelper
 
             if (AppConfig.isConfig("xgm_fan") && Program.acpi.IsXGConnected()) AsusUSB.ResetXGM();
 
-            if (notify && (oldMode != PerformanceMode))
+            if (notify)
             {
                 try
                 {
-                    toast.RunToast(perfName);
+                    toast.RunToast(perfName, powerStatus == PowerLineStatus.Online ? ToastIcon.Charger : ToastIcon.Battery);
                 }
                 catch
                 {
@@ -1376,13 +1383,13 @@ namespace GHelper
 
         }
 
-        public void AutoPerformance()
+        public void AutoPerformance(bool powerChanged = false)
         {
             var Plugged = SystemInformation.PowerStatus.PowerLineStatus;
 
             int mode = AppConfig.getConfig("performance_" + (int)Plugged);
             if (mode != -1)
-                SetPerformanceMode(mode, true);
+                SetPerformanceMode(mode, powerChanged);
             else
                 SetPerformanceMode(AppConfig.getConfig("performance_mode"));
         }
@@ -1788,10 +1795,13 @@ namespace GHelper
                     break;
             }
 
-            menuEco.Checked = buttonEco.Activated;
-            menuStandard.Checked = buttonStandard.Activated;
-            menuUltimate.Checked = buttonUltimate.Activated;
-            menuOptimized.Checked = buttonOptimized.Activated;
+            if (isGpuSection)
+            {
+                menuEco.Checked = buttonEco.Activated;
+                menuStandard.Checked = buttonStandard.Activated;
+                menuUltimate.Checked = buttonUltimate.Activated;
+                menuOptimized.Checked = buttonOptimized.Activated;
+            }
 
         }
 
