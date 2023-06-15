@@ -87,9 +87,9 @@ namespace GHelper
             int kb_timeout;
 
             if (SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online)
-                kb_timeout = AppConfig.getConfig("keyboard_ac_timeout", 0);
+                kb_timeout = AppConfig.Get("keyboard_ac_timeout", 0);
             else
-                kb_timeout = AppConfig.getConfig("keyboard_timeout", 60);
+                kb_timeout = AppConfig.Get("keyboard_timeout", 60);
 
             if (kb_timeout == 0) return;
 
@@ -124,8 +124,8 @@ namespace GHelper
 
         public void InitBacklightTimer()
         {
-            timer.Enabled = (AppConfig.getConfig("keyboard_timeout") > 0 && SystemInformation.PowerStatus.PowerLineStatus != PowerLineStatus.Online) ||
-                            (AppConfig.getConfig("keyboard_ac_timeout") > 0 && SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online);
+            timer.Enabled = (AppConfig.Get("keyboard_timeout") > 0 && SystemInformation.PowerStatus.PowerLineStatus != PowerLineStatus.Online) ||
+                            (AppConfig.Get("keyboard_ac_timeout") > 0 && SystemInformation.PowerStatus.PowerLineStatus == PowerLineStatus.Online);
         }
 
 
@@ -135,11 +135,11 @@ namespace GHelper
             hook.UnregisterAll();
 
             // CTRL + SHIFT + F5 to cycle profiles
-            if (AppConfig.getConfig("keybind_profile") != -1) keyProfile = (Keys)AppConfig.getConfig("keybind_profile");
-            if (AppConfig.getConfig("keybind_app") != -1) keyApp = (Keys)AppConfig.getConfig("keybind_app");
+            if (AppConfig.Get("keybind_profile") != -1) keyProfile = (Keys)AppConfig.Get("keybind_profile");
+            if (AppConfig.Get("keybind_app") != -1) keyApp = (Keys)AppConfig.Get("keybind_app");
 
-            string actionM1 = AppConfig.getConfigString("m1");
-            string actionM2 = AppConfig.getConfigString("m2");
+            string actionM1 = AppConfig.GetString("m1");
+            string actionM2 = AppConfig.GetString("m2");
 
             /*
             if (keyProfile != Keys.None) hook.RegisterHotKey(ModifierKeys.Shift | ModifierKeys.Control, keyProfile);
@@ -152,14 +152,14 @@ namespace GHelper
 
             // FN-Lock group
 
-            if (AppConfig.isConfig("fn_lock") && !AppConfig.ContainsModel("VivoBook"))
+            if (AppConfig.Is("fn_lock") && !AppConfig.ContainsModel("VivoBook"))
                 for (Keys i = Keys.F1; i <= Keys.F11; i++) hook.RegisterHotKey(ModifierKeys.None, i);
 
         }
 
         static void CustomKey(string configKey = "m3")
         {
-            string command = AppConfig.getConfigString(configKey + "_custom");
+            string command = AppConfig.GetString(configKey + "_custom");
             int intKey;
 
             try
@@ -205,7 +205,7 @@ namespace GHelper
                     }
                 }
 
-                if (AppConfig.ContainsModel("GA401I"))
+                if (AppConfig.ContainsModel("GA401I") && !AppConfig.ContainsModel("GA401IHR"))
                 {
                     switch (e.Key)
                     {
@@ -245,21 +245,21 @@ namespace GHelper
                     case Keys.F7:
                         if (AppConfig.ContainsModel("TUF"))
                             Program.settingsForm.BeginInvoke(Program.settingsForm.RunToast, ScreenBrightness.Adjust(-10) + "%", ToastIcon.BrightnessDown);
-                        HandleEvent(16);
+                        HandleOptimizationEvent(16);
                         break;
                     case Keys.F8:
                         if (AppConfig.ContainsModel("TUF")) 
                             Program.settingsForm.BeginInvoke(Program.settingsForm.RunToast, ScreenBrightness.Adjust(+10) + "%", ToastIcon.BrightnessUp);
-                        HandleEvent(32);
+                        HandleOptimizationEvent(32);
                         break;
                     case Keys.F9:
                         KeyboardHook.KeyWinPress(Keys.P);
                         break;
                     case Keys.F10:
-                        HandleEvent(107);
+                        HandleOptimizationEvent(107);
                         break;
                     case Keys.F11:
-                        HandleEvent(108);
+                        HandleOptimizationEvent(108);
                         break;
                     case Keys.F12:
                         KeyboardHook.KeyWinPress(Keys.A);
@@ -298,6 +298,7 @@ namespace GHelper
                     KeyboardHook.KeyPress(Keys.Snapshot);
                     break;
                 case "screen":
+                    Logger.WriteLine("Screen off toggle");
                     NativeMethods.TurnOffScreen(Program.settingsForm.Handle);
                     break;
                 case "miniled":
@@ -328,10 +329,10 @@ namespace GHelper
                     }
                     break;
                 case "brightness_up":
-                    HandleEvent(32);
+                    HandleOptimizationEvent(32);
                     break;
                 case "brightness_down":
-                    HandleEvent(16);
+                    HandleOptimizationEvent(16);
                     break;
                 case "custom":
                     CustomKey(name);
@@ -345,7 +346,7 @@ namespace GHelper
 
         public static void KeyProcess(string name = "m3")
         {
-            string action = AppConfig.getConfigString(name);
+            string action = AppConfig.GetString(name);
 
             if (action is null || action.Length <= 1)
             {
@@ -374,8 +375,8 @@ namespace GHelper
 
         static void ToggleFnLock()
         {
-            int fnLock = AppConfig.isConfig("fn_lock") ? 0 : 1;
-            AppConfig.setConfig("fn_lock", fnLock);
+            int fnLock = AppConfig.Is("fn_lock") ? 0 : 1;
+            AppConfig.Set("fn_lock", fnLock);
 
             if (AppConfig.ContainsModel("VivoBook"))
                 Program.acpi.DeviceSet(AsusACPI.FnLock, (fnLock == 1) ? 0 : 1, "FnLock");
@@ -448,19 +449,29 @@ namespace GHelper
                     return;
                 case 197: // FN+F2
                     SetBacklight(-1);
-                    break;
+                    return;
                 case 196: // FN+F3
                     SetBacklight(1);
-                    break;
+                    return;
                 case 199: // ON Z13 - FN+F11 - cycles backlight
                     SetBacklight(4);
-                    break;
+                    return;
+                case 53:    // FN+F6 on GA-502DU model
+                    NativeMethods.TurnOffScreen(Program.settingsForm.Handle);
+                    return;
             }
 
-            if (OptimizationService.IsRunning()) return;
+            if (!OptimizationService.IsRunning()) 
+                
+                HandleOptimizationEvent(EventID);
 
             // Asus Optimization service Events 
 
+
+        }
+
+        static void HandleOptimizationEvent(int EventID)
+        {
             switch (EventID)
             {
                 case 16: // FN+F7
@@ -477,21 +488,14 @@ namespace GHelper
                 case 108: // FN+F11
                     Program.acpi.DeviceSet(AsusACPI.UniversalControl, AsusACPI.KB_Sleep, "Sleep");
                     break;
-                case 106: // Zephyrus DUO special key for turning on/off second display.
-                    //Program.acpi.DeviceSet(AsusACPI.UniversalControl, AsusACPI.KB_DUO_SecondDisplay, "SecondDisplay");
-                    break;
-                case 75: // Zephyrus DUO special key  for changing between arrows and pgup/pgdn
-                    //Program.acpi.DeviceSet(AsusACPI.UniversalControl, AsusACPI.KB_DUO_PgUpDn, "PgUpDown");
-                    break;
             }
-
         }
 
 
         public static int GetBacklight()
         {
-            int backlight_power = AppConfig.getConfig("keyboard_brightness", 1);
-            int backlight_battery = AppConfig.getConfig("keyboard_brightness_ac", 1);
+            int backlight_power = AppConfig.Get("keyboard_brightness", 1);
+            int backlight_battery = AppConfig.Get("keyboard_brightness_ac", 1);
             bool onBattery = SystemInformation.PowerStatus.PowerLineStatus != PowerLineStatus.Online;
 
             int backlight;
@@ -512,8 +516,8 @@ namespace GHelper
 
         public static void SetBacklight(int delta)
         {
-            int backlight_power = AppConfig.getConfig("keyboard_brightness", 1);
-            int backlight_battery = AppConfig.getConfig("keyboard_brightness_ac", 1);
+            int backlight_power = AppConfig.Get("keyboard_brightness", 1);
+            int backlight_battery = AppConfig.Get("keyboard_brightness_ac", 1);
             bool onBattery = SystemInformation.PowerStatus.PowerLineStatus != PowerLineStatus.Online;
 
             int backlight = onBattery ? backlight_battery : backlight_power;
@@ -524,9 +528,9 @@ namespace GHelper
                 backlight = Math.Max(Math.Min(3, backlight + delta), 0);
 
             if (onBattery)
-                AppConfig.setConfig("keyboard_brightness_ac", backlight);
+                AppConfig.Set("keyboard_brightness_ac", backlight);
             else
-                AppConfig.setConfig("keyboard_brightness", backlight);
+                AppConfig.Set("keyboard_brightness", backlight);
 
             if (!OptimizationService.IsRunning())
             {

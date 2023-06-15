@@ -916,7 +916,7 @@ namespace GHelper.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Performance Mode.
+        ///   Looks up a localized string similar to Mode.
         /// </summary>
         internal static string PerformanceMode {
             get {
@@ -943,7 +943,7 @@ namespace GHelper.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Power Limits (PPT).
+        ///   Looks up a localized string similar to Power Limits.
         /// </summary>
         internal static string PowerLimits {
             get {
@@ -952,7 +952,7 @@ namespace GHelper.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Power Limits (PPT) is experimental feature. Use carefully and on your own risk!.
+        ///   Looks up a localized string similar to Power Limits is experimental feature. Use carefully and on your own risk!.
         /// </summary>
         internal static string PPTExperimental {
             get {

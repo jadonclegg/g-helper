@@ -177,17 +177,18 @@ By default app will use your windows language setting. But you can set language 
 
 Add following line to ``%AppData%\GHelper\config.json`` : ``"language" : "en"`` (by replacing "en" with language of your choice)
 
-### Custom power plans with each mode
+### Custom windows power plans with each mode
 
-In ``%AppData%\GHelper\config.json`` you can manually add custom power plan GUID (it can be either "real" power plan that can be switched or "overlay" power plan like the ones g-helper sets by default)
+In ``%AppData%\GHelper\config.json`` you can manually add custom power plan (or power mode) GUID. It can be either "real" power plan that can be switched or "overlay" power plan like the ones g-helper sets by default.
 
 Format is following : ``"scheme_<mode>" : "GUID" ``
-
 Where ``mode = 0 (balanced), 1 (turbo), 2 (silent)``
 
+Default behaviour is :
 ```
-"scheme_0": "2ac1d0e0-17a7-44ed-8091-d88ef75a4eb0",
-"scheme_1": "381b4222-f694-41f0-9685-ff5bb260df2e"
+"scheme_0": "00000000-0000-0000-0000-000000000000",
+"scheme_1": "ded574b5-45a0-4f42-8737-46345c09c238",
+"scheme_2": "961cc777-2547-4f9d-8174-7d86181b8a7a",
 ```
 
 Make sure to keep json structure (i.e. not to break it with extra or missing comas, etc) - or app will fail to read it and will just recreate a new config instead.
@@ -215,6 +216,9 @@ To enable this custom workaround you need to add an extra line in config.json (u
 ### Keybinding to toggle performance modes (on external keyboards)
 
 By default app will toggle performance modes with Ctr+Shift+F5. You can change this binding by adding ``"keybind_profile": 116`` in config.json (under ``%AppData%\GHelper``), where 116 is [numerical code for desired key](https://www.oreilly.com/library/view/javascript-dhtml/9780596514082/apb.html). Put 0 to completely disable this binding.
+
+### Keybinding to open G-helper from external keyboards
+Ctrl + Shift + F12
 
 ------------
 

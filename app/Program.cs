@@ -2,8 +2,6 @@ using Microsoft.Win32;
 using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
-using System.Security.Principal;
-using System.Windows.Forms;
 using static NativeMethods;
 
 namespace GHelper
@@ -38,15 +36,18 @@ namespace GHelper
             string action = "";
             if (args.Length > 0) action = args[0];
 
-            string language = AppConfig.getConfigString("language");
+            string language = AppConfig.GetString("language");
 
             if (language != null && language.Length > 0)
                 Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(language);
             else
-                Thread.CurrentThread.CurrentUICulture = CultureInfo.CurrentUICulture;
+            {
+                var culture = CultureInfo.CurrentUICulture;
+                if (culture.ToString() == "kr") culture = CultureInfo.GetCultureInfo("ko");
+                Thread.CurrentThread.CurrentUICulture = culture;
+            }
 
             Debug.WriteLine(CultureInfo.CurrentUICulture);
-            //Thread.CurrentThread.CurrentUICulture = CultureInfo.CreateSpecificCulture("fr");
 
             ProcessHelper.CheckAlreadyRunning();
 
@@ -147,7 +148,7 @@ namespace GHelper
 
             inputDispatcher.Init();
 
-            settingsForm.SetBatteryChargeLimit(AppConfig.getConfig("charge_limit"));
+            settingsForm.SetBatteryChargeLimit(AppConfig.Get("charge_limit"));
             settingsForm.AutoPerformance(powerChanged);
 
             bool switched = settingsForm.AutoGPUMode();
@@ -176,8 +177,16 @@ namespace GHelper
             if (settingsForm.Visible) settingsForm.HideAll();
             else
             {
+
+                settingsForm.Left = Screen.FromControl(settingsForm).WorkingArea.Width - 10 - settingsForm.Width;
+                settingsForm.Top = Screen.FromControl(settingsForm).WorkingArea.Height - 10 - settingsForm.Height;
+
                 settingsForm.Show();
                 settingsForm.Activate();
+
+                settingsForm.Left = Screen.FromControl(settingsForm).WorkingArea.Width - 10 - settingsForm.Width;
+                settingsForm.Top = Screen.FromControl(settingsForm).WorkingArea.Height - 10 - settingsForm.Height;
+
                 settingsForm.VisualiseGPUMode();
 
                 switch (action)

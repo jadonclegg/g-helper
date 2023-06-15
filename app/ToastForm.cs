@@ -1,7 +1,6 @@
-﻿using System.Diagnostics;
-using System.Drawing;
+﻿using OSD;
+using System.Diagnostics;
 using System.Drawing.Drawing2D;
-using OSD;
 
 
 namespace GHelper
@@ -57,7 +56,7 @@ namespace GHelper
         Charger
     }
 
-    public class  ToastForm : OSDNativeForm
+    public class ToastForm : OSDNativeForm
     {
 
         protected static string toastText = "Balanced";
@@ -74,7 +73,7 @@ namespace GHelper
 
         protected override void PerformPaint(PaintEventArgs e)
         {
-            Brush brush = new SolidBrush(Color.FromArgb(150,Color.Black));
+            Brush brush = new SolidBrush(Color.FromArgb(150, Color.Black));
             Drawing.FillRoundedRectangle(e.Graphics, brush, this.Bound, 10);
 
             StringFormat format = new StringFormat();
@@ -113,7 +112,7 @@ namespace GHelper
                     icon = Properties.Resources.icons8_charged_battery_96;
                     break;
                 case ToastIcon.Charger:
-                    icon = Properties.Resources.icons8_electrical_96;
+                    icon = Properties.Resources.icons8_charging_battery_96;
                     break;
 
             }
@@ -144,9 +143,9 @@ namespace GHelper
 
             Screen screen1 = Screen.FromHandle(base.Handle);
 
-            Width = 300;
+            Width = Math.Max(300, 100 + toastText.Length * 22);
             Height = 100;
-            X = (screen1.Bounds.Width - this.Width)/2;
+            X = (screen1.Bounds.Width - this.Width) / 2;
             Y = screen1.Bounds.Height - 300 - this.Height;
 
             Show();
