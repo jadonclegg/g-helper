@@ -150,6 +150,11 @@ namespace GHelper
                 if (actionM1 is not null && actionM1.Length > 0) hook.RegisterHotKey(ModifierKeys.None, Keys.VolumeDown);
                 if (actionM2 is not null && actionM2.Length > 0) hook.RegisterHotKey(ModifierKeys.None, Keys.VolumeUp);
 
+            hook.RegisterHotKey(ModifierKeys.Control, Keys.VolumeDown);
+            hook.RegisterHotKey(ModifierKeys.Shift, Keys.VolumeDown);
+            hook.RegisterHotKey(ModifierKeys.Control, Keys.VolumeUp);
+            hook.RegisterHotKey(ModifierKeys.Shift, Keys.VolumeUp);
+
             // FN-Lock group
 
             if (AppConfig.Is("fn_lock") && !AppConfig.ContainsModel("VivoBook"))
@@ -279,6 +284,31 @@ namespace GHelper
             {
                 if (e.Key == keyProfile) Program.settingsForm.CyclePerformanceMode();
                 if (e.Key == keyApp) Program.SettingsToggle();
+            }
+
+            if (e.Modifier == (ModifierKeys.Control))
+            {
+                switch (e.Key)
+                {
+                    case Keys.VolumeDown:
+                        HandleOptimizationEvent(16);
+                        break;
+                    case Keys.VolumeUp:
+                        HandleOptimizationEvent(32);
+                        break;
+                }
+            }
+
+            if (e.Modifier == (ModifierKeys.Shift))
+            {
+                switch (e.Key) {
+                    case Keys.VolumeDown:
+                        SetBacklight(-1);
+                        break;
+                    case Keys.VolumeUp:
+                        SetBacklight(1);
+                        break;
+                }
             }
 
 
