@@ -1174,16 +1174,16 @@ namespace GHelper
             switch (CurrentGPU)
             {
                 case AsusACPI.GPUModeEco:
-                    RunToast("GPU Eco Mode");
+                    Program.toast.RunToast("GPU Eco Mode");
                     break;
                 case AsusACPI.GPUModeStandard:
-                    RunToast("GPU Standard Mode");
+                    Program.toast.RunToast("GPU Standard Mode");
                     break;
                 case AsusACPI.GPUModeUltimate:
-                    RunToast("GPU Ultimate Mode");
+                    Program.toast.RunToast("GPU Ultimate Mode");
                     break;
                 default:
-                    RunToast("GPU Mode Unknown");
+                    Program.toast.RunToast("GPU Mode Unknown");
                     break;
             }
         }
@@ -1194,17 +1194,17 @@ namespace GHelper
 
             if (CurrentGPU == AsusACPI.GPUModeEco)
             {
-                SetGPUMode(AsusACPI.GPUModeStandard);
-                RunToast("GPU Standard Mode");
+                gpuControl.SetGPUMode(AsusACPI.GPUModeStandard);
+                Program.toast.RunToast("GPU Standard Mode");
             }
             else if (CurrentGPU == AsusACPI.GPUModeStandard)
             {
-                SetGPUMode(AsusACPI.GPUModeEco);
-                RunToast("GPU Eco Mode");
+                gpuControl.SetGPUMode(AsusACPI.GPUModeEco);
+                Program.toast.RunToast("GPU Eco Mode");
             }
             else
             {
-                RunToast("GPU mode on auto / ultimate.");
+                Program.toast.RunToast("GPU mode on auto / ultimate.");
             }
         }
 
@@ -1214,13 +1214,13 @@ namespace GHelper
 
             if (frequency == 60)
             {
-                SetScreen(1000, 1);
-                RunToast("120hz+OD");
+                screenControl.SetScreen(1000, 1);
+                Program.toast.RunToast("120hz+OD");
             }
             else
             {
-                SetScreen(60, 0);
-                RunToast("60hz");
+                screenControl.SetScreen(60, 0);
+                Program.toast.RunToast("60hz");
             }
         }
 
@@ -1228,7 +1228,7 @@ namespace GHelper
         {
             int frequency = NativeMethods.GetRefreshRate();
 
-            RunToast(frequency + "hz");
+            Program.toast.RunToast(frequency + "hz");
         }
 
     }

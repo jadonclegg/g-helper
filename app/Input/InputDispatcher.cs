@@ -253,6 +253,7 @@ namespace GHelper.Input
                 switch (e.Key)
                 {
                     case Keys.VolumeDown:
+                        Logger.WriteLine("voldown control");
                         HandleOptimizationEvent(16);
                         break;
                     case Keys.VolumeUp:
@@ -263,11 +264,14 @@ namespace GHelper.Input
 
             if (e.Modifier == (ModifierKeys.Shift))
             {
+                Logger.WriteLine("shift");
                 switch (e.Key) {
                     case Keys.VolumeDown:
+                        Logger.WriteLine("voldown shift");
                         SetBacklight(-1);
                         break;
                     case Keys.VolumeUp:
+                        Logger.WriteLine("volup shift");
                         SetBacklight(1);
                         break;
                 }
