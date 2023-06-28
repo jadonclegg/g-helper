@@ -1,5 +1,6 @@
-﻿using CustomControls;
-using GHelper.Gpu;
+﻿using GHelper.Gpu.NVidia;
+using GHelper.Mode;
+using GHelper.UI;
 using Ryzen;
 using System.Diagnostics;
 using System.Windows.Forms.DataVisualization.Charting;
@@ -10,7 +11,7 @@ namespace GHelper
     {
 
         int curIndex = -1;
-        DataPoint curPoint = null;
+        DataPoint? curPoint = null;
 
         Series seriesCPU;
         Series seriesGPU;
@@ -24,6 +25,7 @@ namespace GHelper
         const int fansMax = 100;
 
         NvidiaGpuControl? nvControl = null;
+        ModeControl modeControl = Program.modeControl;
 
         public Fans()
         {
@@ -132,14 +134,14 @@ namespace GHelper
             labelFansResult.Visible = false;
 
 
-            trackUV.Minimum = Undervolter.MinCPUUV;
-            trackUV.Maximum = Undervolter.MaxCPUUV;
+            trackUV.Minimum = RyzenControl.MinCPUUV;
+            trackUV.Maximum = RyzenControl.MaxCPUUV;
 
-            trackUViGPU.Minimum = Undervolter.MinIGPUUV;
-            trackUViGPU.Maximum = Undervolter.MaxIGPUUV;
+            trackUViGPU.Minimum = RyzenControl.MinIGPUUV;
+            trackUViGPU.Maximum = RyzenControl.MaxIGPUUV;
 
-            trackTemp.Minimum = Undervolter.MinTemp;
-            trackTemp.Maximum = Undervolter.MaxTemp;
+            trackTemp.Minimum = RyzenControl.MinTemp;
+            trackTemp.Maximum = RyzenControl.MaxTemp;
 
 
             FillModes();
@@ -181,6 +183,7 @@ namespace GHelper
         private void CheckApplyUV_Click(object? sender, EventArgs e)
         {
             AppConfig.SetMode("auto_uv", checkApplyUV.Checked ? 1 : 0);
+            modeControl.AutoRyzen();
         }
 
         public void InitAll()
@@ -243,7 +246,7 @@ namespace GHelper
 
         private void ButtonApplyAdvanced_Click(object? sender, EventArgs e)
         {
-            Program.settingsForm.SetUV(true);
+            modeControl.SetRyzen(true);
             checkApplyUV.Enabled = true;
         }
 
@@ -270,7 +273,7 @@ namespace GHelper
             labelTemp.Text = trackTemp.Value.ToString() + "°C";
 
 
-            buttonAdvanced.Visible = Undervolter.IsAMD();
+            buttonAdvanced.Visible = RyzenControl.IsAMD();
 
         }
 
@@ -331,7 +334,7 @@ namespace GHelper
             Modes.Remove(mode);
             FillModes();
 
-            Program.settingsForm.SetPerformanceMode(AsusACPI.PerformanceBalanced);
+            modeControl.SetPerformanceMode(AsusACPI.PerformanceBalanced);
 
         }
 
@@ -347,7 +350,7 @@ namespace GHelper
         {
             int mode = Modes.Add();
             FillModes();
-            Program.settingsForm.SetPerformanceMode(mode);
+            modeControl.SetPerformanceMode(mode);
         }
 
         public void InitMode()
@@ -366,13 +369,13 @@ namespace GHelper
 
             Debug.WriteLine(selectedMode);
 
-            Program.settingsForm.SetPerformanceMode((int)selectedMode);
+            modeControl.SetPerformanceMode((int)selectedMode);
         }
 
         private void TrackGPU_MouseUp(object? sender, MouseEventArgs e)
         {
-            Program.settingsForm.SetGPUPower();
-            Program.settingsForm.SetGPUClocks(true);
+            modeControl.SetGPUPower();
+            modeControl.SetGPUClocks(true);
         }
 
         public void InitGPU()
@@ -560,7 +563,7 @@ namespace GHelper
 
         private void TrackPower_MouseUp(object? sender, MouseEventArgs e)
         {
-            Program.settingsForm.AutoPower();
+            modeControl.AutoPower();
         }
 
 
@@ -586,7 +589,7 @@ namespace GHelper
             CheckBox chk = (CheckBox)sender;
 
             AppConfig.SetMode("auto_apply_power", chk.Checked ? 1 : 0);
-            Program.settingsForm.SetPerformanceMode();
+            modeControl.SetPerformanceMode();
 
         }
 
@@ -596,7 +599,7 @@ namespace GHelper
             CheckBox chk = (CheckBox)sender;
 
             AppConfig.SetMode("auto_apply", chk.Checked ? 1 : 0);
-            Program.settingsForm.SetPerformanceMode();
+            modeControl.SetPerformanceMode();
 
         }
 
@@ -622,12 +625,14 @@ namespace GHelper
         public void InitPower(bool changed = false)
         {
 
-            bool modeA0 = Program.acpi.DeviceGet(AsusACPI.PPT_TotalA0) >= 0 || Undervolter.IsAMD();
+            bool modeA0 = (Program.acpi.DeviceGet(AsusACPI.PPT_TotalA0) >= 0 || RyzenControl.IsAMD());
             bool modeB0 = Program.acpi.IsAllAmdPPT();
             bool modeC1 = Program.acpi.DeviceGet(AsusACPI.PPT_APUC1) >= 0;
 
             panelA0.Visible = modeA0;
             panelB0.Visible = modeB0;
+
+            panelApplyPower.Visible = panelTitleCPU.Visible = modeA0 || modeB0 || modeC1;
 
 
             // All AMD version has B0 but doesn't have C0 (Nvidia GPU) settings
@@ -826,10 +831,6 @@ namespace GHelper
             AppConfig.SetMode("auto_apply", 0);
             AppConfig.SetMode("auto_apply_power", 0);
 
-            Program.acpi.DeviceSet(AsusACPI.PerformanceMode, Modes.GetCurrentBase(), "Mode");
-
-            if (Program.acpi.IsXGConnected())
-                AsusUSB.ResetXGM();
 
             trackUV.Value = 0;
             trackUViGPU.Value = 0;
@@ -837,6 +838,11 @@ namespace GHelper
 
             AdvancedScroll();
             AppConfig.SetMode("cpu_temp", -1);
+
+            modeControl.ResetPerformanceMode();
+            
+            if (Program.acpi.IsXGConnected()) AsusUSB.ResetXGM();
+
 
             if (gpuVisible)
             {
@@ -851,8 +857,8 @@ namespace GHelper
                 AppConfig.SetMode("gpu_memory", trackGPUMemory.Value);
 
                 VisualiseGPUSettings();
-                Program.settingsForm.SetGPUClocks(true);
-                Program.settingsForm.SetGPUPower();
+                modeControl.SetGPUClocks(true);
+                modeControl.SetGPUPower();
             }
 
         }
@@ -873,7 +879,7 @@ namespace GHelper
             if (AppConfig.Is("xgm_fan"))
                 SaveProfile(seriesXGM, AsusFan.XGM);
 
-            Program.settingsForm.AutoFans();
+            modeControl.AutoFans();
 
 
         }
@@ -970,8 +976,8 @@ namespace GHelper
         {
 
             // Get the neighboring DataPoints of the hit point
-            DataPoint upperPoint = null;
-            DataPoint lowerPoint = null;
+            DataPoint? upperPoint = null;
+            DataPoint? lowerPoint = null;
 
             if (index > 0)
             {
