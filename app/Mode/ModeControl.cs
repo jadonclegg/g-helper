@@ -1,4 +1,5 @@
-﻿using GHelper.Gpu.NVidia;
+﻿using GHelper.Battery;
+using GHelper.Gpu.NVidia;
 using GHelper.Helpers;
 using Ryzen;
 
@@ -87,6 +88,8 @@ namespace GHelper.Mode
             {
                 PowerNative.SetCPUBoost(AppConfig.GetMode("auto_boost"));
             }
+
+            //BatteryControl.SetBatteryChargeLimit();
 
             /*
             if (NativeMethods.PowerGetEffectiveOverlayScheme(out Guid activeScheme) == 0)
@@ -249,10 +252,18 @@ namespace GHelper.Mode
 
                 if (ProcessHelper.IsUserAdministrator())
                 {
-                    SendCommand.set_stapm_limit((uint)limit_total * 1000);
-                    SendCommand.set_stapm2_limit((uint)limit_total * 1000);
-                    SendCommand.set_slow_limit((uint)limit_total * 1000);
-                    SendCommand.set_fast_limit((uint)limit_total * 1000);
+                    var stapmResult = SendCommand.set_stapm_limit((uint)limit_total * 1000);
+                    Logger.WriteLine($"STAPM: {limit_total} {stapmResult}");
+
+                    var stapmResult2 = SendCommand.set_stapm2_limit((uint)limit_total * 1000);
+                    Logger.WriteLine($"STAPM2: {limit_total} {stapmResult2}");
+
+                    var slowResult = SendCommand.set_slow_limit((uint)limit_total * 1000);
+                    Logger.WriteLine($"SLOW: {limit_total} {slowResult}");
+
+                    var fastResult = SendCommand.set_fast_limit((uint)limit_total * 1000);
+                    Logger.WriteLine($"FAST: {limit_total} {fastResult}");
+
                     customPower = limit_total;
                 }
                 else if (launchAsAdmin)
