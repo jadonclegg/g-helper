@@ -1078,7 +1078,7 @@ namespace GHelper
 
         public void ToggleScreen()
         {
-            int frequency = NativeMethods.GetRefreshRate();
+            int frequency = ScreenNative.GetRefreshRate();
 
             if (frequency == 60)
             {
@@ -1094,7 +1094,7 @@ namespace GHelper
 
         public void ShowScreenHz()
         {
-            int frequency = NativeMethods.GetRefreshRate();
+            int frequency = ScreenNative.GetRefreshRate();
 
             Program.toast.RunToast(frequency + "hz");
         }
