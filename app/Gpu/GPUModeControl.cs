@@ -7,8 +7,13 @@ namespace GHelper.Gpu
 {
     public class GPUModeControl
     {
-        static SettingsForm settings = Program.settingsForm;
+        SettingsForm settings;
         ScreenControl screenControl = new ScreenControl();
+
+        public GPUModeControl(SettingsForm settingsForm)
+        {
+            settings = settingsForm;
+        }
 
         public void InitGPUMode()
         {
@@ -140,7 +145,7 @@ namespace GHelper.Gpu
                 if (status == 0 && eco == 1 && hardWay) RestartGPU();
 
                 await Task.Delay(TimeSpan.FromMilliseconds(100));
-                
+
                 settings.Invoke(delegate
                 {
                     InitGPUMode();
@@ -168,7 +173,7 @@ namespace GHelper.Gpu
 
         }
 
-        public bool AutoGPUMode()
+        public bool AutoGPUMode(bool optimized = false)
         {
 
             bool GpuAuto = AppConfig.Is("gpu_auto");
@@ -181,8 +186,11 @@ namespace GHelper.Gpu
             int eco = Program.acpi.DeviceGet(AsusACPI.GPUEco);
             int mux = Program.acpi.DeviceGet(AsusACPI.GPUMux);
 
-            if (mux == 0) // GPU in Ultimate, ignore
+            if (mux == 0)
+            {
+                if (optimized) SetGPUMode(AsusACPI.GPUModeStandard);
                 return false;
+            }
             else
             {
 
