@@ -13,7 +13,7 @@ namespace GHelper.Input
     public class InputDispatcher
     {
         System.Timers.Timer timer = new System.Timers.Timer(1000);
-        public bool backlightActivity = true;
+        public static bool backlightActivity = true;
 
         public static Keys keyProfile = Keys.F5;
         public static Keys keyApp = Keys.F12;
@@ -195,10 +195,10 @@ namespace GHelper.Input
                         KeyboardHook.KeyPress(Keys.VolumeMute);
                         break;
                     case Keys.F2:
-                        HandleEvent(197);
+                        SetBacklight(-1, true);
                         break;
                     case Keys.F3:
-                        HandleEvent(196);
+                        SetBacklight(1, true);
                         break;
                     case Keys.F4:
                         KeyProcess("fnf4");
@@ -365,6 +365,7 @@ namespace GHelper.Input
         {
             using (var key = Registry.CurrentUser.OpenSubKey(@"SOFTWARE\Microsoft\Windows\CurrentVersion\PrecisionTouchPad\Status", false))
             {
+                Logger.WriteLine("Touchpad status:" + key?.GetValue("Enabled")?.ToString());
                 return key?.GetValue("Enabled")?.ToString() == "1";
             }
         }
@@ -384,6 +385,8 @@ namespace GHelper.Input
 
         public static void TabletMode()
         {
+            if (AppConfig.Is("disable_tablet")) return;
+
             bool touchpadState = GetTouchpadState();
             bool tabletState = Program.acpi.DeviceGet(AsusACPI.TabletState) > 0;
 
@@ -476,9 +479,9 @@ namespace GHelper.Input
                     Program.acpi.DeviceSet(AsusACPI.UniversalControl, AsusACPI.Brightness_Up, "Brightness");
                     break;
                 case 107: // FN+F10
-                    bool touchpadState = GetTouchpadState();
                     AsusUSB.TouchpadToggle();
-                    Program.toast.RunToast(touchpadState ? "Off" : "On", ToastIcon.Touchpad);
+                    Thread.Sleep(50);
+                    Program.toast.RunToast(GetTouchpadState() ? "On" : "Off", ToastIcon.Touchpad);
                     break;
                 case 108: // FN+F11
                     Program.acpi.DeviceSet(AsusACPI.UniversalControl, AsusACPI.KB_Sleep, "Sleep");
@@ -509,7 +512,7 @@ namespace GHelper.Input
             AsusUSB.ApplyBrightness(GetBacklight(), "Auto");
         }
 
-        public static void SetBacklight(int delta)
+        public static void SetBacklight(int delta, bool force = false)
         {
             int backlight_power = AppConfig.Get("keyboard_brightness", 1);
             int backlight_battery = AppConfig.Get("keyboard_brightness_ac", 1);
@@ -527,12 +530,13 @@ namespace GHelper.Input
             else
                 AppConfig.Set("keyboard_brightness", backlight);
 
-            if (!OptimizationService.IsRunning())
+            if (force || !OptimizationService.IsRunning())
             {
                 AsusUSB.ApplyBrightness(backlight, "HotKey");
-                string[] backlightNames = new string[] { "Off", "Low", "Mid", "Max" };
-                Program.toast.RunToast(backlightNames[backlight], delta > 0 ? ToastIcon.BacklightUp : ToastIcon.BacklightDown);
             }
+
+            string[] backlightNames = new string[] { "Off", "Low", "Mid", "Max" };
+            Program.toast.RunToast(backlightNames[backlight], delta > 0 ? ToastIcon.BacklightUp : ToastIcon.BacklightDown);
 
         }
 
