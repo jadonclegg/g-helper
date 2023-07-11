@@ -26,7 +26,6 @@ namespace GHelper.UI
         private SizeF _barSize;
         private PointF _barPos;
 
-        private int _step = 5;
 
         public Color accentColor = Color.FromArgb(255, 58, 174, 239);
         public Color borderColor = Color.White;
@@ -38,6 +37,7 @@ namespace GHelper.UI
             // This reduces flicker
             DoubleBuffered = true;
         }
+
 
         private int _min = 0;
         public int Min
@@ -61,6 +61,16 @@ namespace GHelper.UI
             }
         }
 
+
+        private int _step = 1;
+        public int Step
+        {
+            get => _step;
+            set
+            {
+                _step = value;
+            }
+        }
         private int _value = 50;
         public int Value
         {

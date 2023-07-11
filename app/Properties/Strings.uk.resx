@@ -59,46 +59,46 @@
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
-  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
-    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+  <xsd:schema xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" id="root">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
     <xsd:element name="root" msdata:IsDataSet="true">
       <xsd:complexType>
         <xsd:choice maxOccurs="unbounded">
           <xsd:element name="metadata">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
               </xsd:sequence>
-              <xsd:attribute name="name" use="required" type="xsd:string" />
-              <xsd:attribute name="type" type="xsd:string" />
-              <xsd:attribute name="mimetype" type="xsd:string" />
-              <xsd:attribute ref="xml:space" />
+              <xsd:attribute name="name" use="required" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="assembly">
             <xsd:complexType>
-              <xsd:attribute name="alias" type="xsd:string" />
-              <xsd:attribute name="name" type="xsd:string" />
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="data">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
-                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
-              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
-              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
-              <xsd:attribute ref="xml:space" />
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+              <xsd:attribute ref="xml:space"/>
             </xsd:complexType>
           </xsd:element>
           <xsd:element name="resheader">
             <xsd:complexType>
               <xsd:sequence>
-                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
               </xsd:sequence>
-              <xsd:attribute name="name" type="xsd:string" use="required" />
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
             </xsd:complexType>
           </xsd:element>
         </xsd:choice>
@@ -147,6 +147,9 @@
   <data name="AppAlreadyRunningText" xml:space="preserve">
     <value>G-Helper вже запущено. Перевірте значок у системному лотку.</value>
   </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Застосувати</value>
+  </data>
   <data name="ApplyFanCurve" xml:space="preserve">
     <value>Застосувати профілі кулерів</value>
   </data>
@@ -183,6 +186,9 @@
   <data name="AuraStrobe" xml:space="preserve">
     <value>Стробоскоп</value>
   </data>
+  <data name="AutoApply" xml:space="preserve">
+    <value>Автоматично</value>
+  </data>
   <data name="AutoMode" xml:space="preserve">
     <value>Авто</value>
   </data>
@@ -193,7 +199,7 @@
     <value>Робота</value>
   </data>
   <data name="BacklightTimeout" xml:space="preserve">
-    <value>Тайм-аут підсвітки на батареї</value>
+    <value>Тайм-аут на зарядці / на батареї (0 - УВІМК)</value>
   </data>
   <data name="BacklightTimeoutPlugged" xml:space="preserve">
     <value>Тайм-аут підсвітки на зарядці (0 - завжди ввімкнено)</value>
@@ -249,6 +255,14 @@
   <data name="EcoMode" xml:space="preserve">
     <value>Еко</value>
   </data>
+  <data name="EnableOptimusText" xml:space="preserve">
+    <value>Вимкнення dGPU коли NVIDIA Display Mode не встановлено в режим Optimus може спричинити проблеми з управлінням яскравістю до наступного перезавантаження. 
+
+Ви все ще хочете продовжити?</value>
+  </data>
+  <data name="EnableOptimusTitle" xml:space="preserve">
+    <value>NVIDIA Display Mode не в режимі Optimus</value>
+  </data>
   <data name="Extra" xml:space="preserve">
     <value>Додатково</value>
   </data>
@@ -276,14 +290,26 @@
   <data name="FansAndPower" xml:space="preserve">
     <value>Кулери та Потужність</value>
   </data>
+  <data name="FanSpeed" xml:space="preserve">
+    <value>Fan</value>
+  </data>
   <data name="FansPower" xml:space="preserve">
     <value>Кулери та Потужність</value>
   </data>
   <data name="FnLock" xml:space="preserve">
     <value>Гарячі клавіші Fn+F працюють без натискання Fn</value>
   </data>
+  <data name="GPUBoost" xml:space="preserve">
+    <value>Dynamic Boost</value>
+  </data>
   <data name="GPUChanging" xml:space="preserve">
     <value>Зміна</value>
+  </data>
+  <data name="GPUCoreClockOffset" xml:space="preserve">
+    <value>Core Clock Offset</value>
+  </data>
+  <data name="GPUMemoryClockOffset" xml:space="preserve">
+    <value>Memory Clock Offset</value>
   </data>
   <data name="GPUMode" xml:space="preserve">
     <value>Режим Графіки</value>
@@ -296,6 +322,12 @@
   </data>
   <data name="GPUModeUltimate" xml:space="preserve">
     <value>Ексклюзивний dGPU</value>
+  </data>
+  <data name="GPUSettings" xml:space="preserve">
+    <value>Параметри GPU</value>
+  </data>
+  <data name="GPUTempTarget" xml:space="preserve">
+    <value>Temperature Target</value>
   </data>
   <data name="KeyBindings" xml:space="preserve">
     <value>Прив'язки клавіш</value>
@@ -317,6 +349,15 @@
   </data>
   <data name="LaptopScreen" xml:space="preserve">
     <value>Дисплей</value>
+  </data>
+  <data name="Lid" xml:space="preserve">
+    <value>Кришка</value>
+  </data>
+  <data name="Lightbar" xml:space="preserve">
+    <value>Лайтбар</value>
+  </data>
+  <data name="Logo" xml:space="preserve">
+    <value>Лого</value>
   </data>
   <data name="MatrixAudio" xml:space="preserve">
     <value>Аудіо візуалізатор</value>
@@ -357,6 +398,12 @@
   <data name="MuteMic" xml:space="preserve">
     <value>Вимкнути мікрофон</value>
   </data>
+  <data name="NewUpdates" xml:space="preserve">
+    <value>Є оновлення</value>
+  </data>
+  <data name="NoNewUpdates" xml:space="preserve">
+    <value>Немає оновлень</value>
+  </data>
   <data name="OpenGHelper" xml:space="preserve">
     <value>Відкрити вікно G-Helper</value>
   </data>
@@ -396,6 +443,9 @@
   <data name="Quit" xml:space="preserve">
     <value>Вихід</value>
   </data>
+  <data name="RestartGPU" xml:space="preserve">
+    <value>Щось використовує dGPU та не дає перейти в режимі Еко. Перезапустити dGPU у менеджері пристроїв? * Будь ласка, продовжуйте на свій страх і ризик.</value>
+  </data>
   <data name="RPM" xml:space="preserve">
     <value>Оберти</value>
   </data>
@@ -429,6 +479,9 @@
   <data name="Stop" xml:space="preserve">
     <value>Зупинити</value>
   </data>
+  <data name="StopGPUApps" xml:space="preserve">
+    <value>Зупинити GPU додатки</value>
+  </data>
   <data name="StoppingServices" xml:space="preserve">
     <value>Зупиняються сервіси</value>
   </data>
@@ -458,6 +511,9 @@
   </data>
   <data name="UltimateMode" xml:space="preserve">
     <value>Ультімейт</value>
+  </data>
+  <data name="UndervoltingRisky" xml:space="preserve">
+    <value>Undervolting є експериментальним. Якщо значення занизькі для вашого CPU, це може спричинити нестабільність, припинити роботу або пошкодити дані. Якщо хочете спробувати - почніть з малих значень, натисніть «Застосувати» та перевірте, чи стабільно все працює.</value>
   </data>
   <data name="Updates" xml:space="preserve">
     <value>Оновлення</value>
