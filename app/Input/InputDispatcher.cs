@@ -153,7 +153,7 @@ namespace GHelper.Input
             {
                 Logger.WriteLine(e.Key.ToString());
 
-                if (AppConfig.ContainsModel("Z13"))
+                if (AppConfig.ContainsModel("Z13") || AppConfig.ContainsModel("FA506"))
                 {
                     switch (e.Key)
                     {
@@ -210,13 +210,11 @@ namespace GHelper.Input
                         KeyboardHook.KeyPress(Keys.Snapshot);
                         break;
                     case Keys.F7:
-                        if (AppConfig.ContainsModel("TUF"))
-                            Program.toast.RunToast(ScreenBrightness.Adjust(-10) + "%", ToastIcon.BrightnessDown);
+                        //if (AppConfig.ContainsModel("TUF")) Program.toast.RunToast(ScreenBrightness.Adjust(-10) + "%", ToastIcon.BrightnessDown);
                         HandleOptimizationEvent(16);
                         break;
                     case Keys.F8:
-                        if (AppConfig.ContainsModel("TUF"))
-                            Program.toast.RunToast(ScreenBrightness.Adjust(+10) + "%", ToastIcon.BrightnessUp);
+                        // if (AppConfig.ContainsModel("TUF")) Program.toast.RunToast(ScreenBrightness.Adjust(+10) + "%", ToastIcon.BrightnessUp);
                         HandleOptimizationEvent(32);
                         break;
                     case Keys.F9:
