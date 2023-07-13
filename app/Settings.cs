@@ -1060,7 +1060,11 @@ namespace GHelper
 
         public void ToggleScreen()
         {
-            int frequency = ScreenNative.GetRefreshRate();
+            string? laptopScreen = ScreenNative.FindLaptopScreen();
+
+            if (laptopScreen == null) return;
+
+            int frequency = ScreenNative.GetRefreshRate(laptopScreen);
 
             if (frequency == 60)
             {
@@ -1076,7 +1080,11 @@ namespace GHelper
 
         public void ShowScreenHz()
         {
-            int frequency = ScreenNative.GetRefreshRate();
+            string? laptopScreen = ScreenNative.FindLaptopScreen();
+
+            if (laptopScreen == null) return;
+
+            int frequency = ScreenNative.GetRefreshRate(laptopScreen);
 
             Program.toast.RunToast(frequency + "hz");
         }
