@@ -222,6 +222,9 @@
   <data name="BrightnessUp" xml:space="preserve">
     <value>Subir brillo</value>
   </data>
+  <data name="Charging" xml:space="preserve">
+    <value>Charging</value>
+  </data>
   <data name="Color" xml:space="preserve">
     <value>Color</value>
   </data>
@@ -445,6 +448,12 @@
   </data>
   <data name="RunOnStartup" xml:space="preserve">
     <value>Ejecutar al inicio</value>
+  </data>
+  <data name="ScreenPadDown" xml:space="preserve">
+    <value>Screenpad Brightness Down</value>
+  </data>
+  <data name="ScreenPadUp" xml:space="preserve">
+    <value>Screenpad Brightness Up</value>
   </data>
   <data name="Shutdown" xml:space="preserve">
     <value>Al apagar</value>

@@ -222,6 +222,9 @@
   <data name="BrightnessUp" xml:space="preserve">
     <value>Підвищити яскравість</value>
   </data>
+  <data name="Charging" xml:space="preserve">
+    <value>Зарядка</value>
+  </data>
   <data name="Color" xml:space="preserve">
     <value>Колір</value>
   </data>
@@ -445,6 +448,12 @@
   </data>
   <data name="RunOnStartup" xml:space="preserve">
     <value>Запускати на старті</value>
+  </data>
+  <data name="ScreenPadDown" xml:space="preserve">
+    <value>Screenpad Brightness Down</value>
+  </data>
+  <data name="ScreenPadUp" xml:space="preserve">
+    <value>Screenpad Brightness Up</value>
   </data>
   <data name="Shutdown" xml:space="preserve">
     <value>Вимикання</value>

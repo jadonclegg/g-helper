@@ -116,6 +116,12 @@ namespace GHelper
 
             Text = Properties.Strings.ExtraSettings;
 
+            if (AppConfig.ContainsModel("Duo"))
+            {
+                customActions.Add("screenpad_down", Properties.Strings.ScreenPadDown);
+                customActions.Add("screenpad_up", Properties.Strings.ScreenPadUp);
+            }
+
             InitTheme();
 
             SetKeyCombo(comboM1, textM1, "m1");
@@ -135,28 +141,28 @@ namespace GHelper
             comboKeyboardSpeed.SelectedValueChanged += ComboKeyboardSpeed_SelectedValueChanged;
 
             // Keyboard
-            checkAwake.Checked = !(AppConfig.Get("keyboard_awake") == 0);
-            checkBoot.Checked = !(AppConfig.Get("keyboard_boot") == 0);
-            checkSleep.Checked = !(AppConfig.Get("keyboard_sleep") == 0);
-            checkShutdown.Checked = !(AppConfig.Get("keyboard_shutdown") == 0);
+            checkAwake.Checked = AppConfig.IsNotFalse("keyboard_awake");
+            checkBoot.Checked = AppConfig.IsNotFalse("keyboard_boot");
+            checkSleep.Checked = AppConfig.IsNotFalse("keyboard_sleep");
+            checkShutdown.Checked = AppConfig.IsNotFalse("keyboard_shutdown");
 
             // Lightbar
-            checkAwakeBar.Checked = !(AppConfig.Get("keyboard_awake_bar") == 0);
-            checkBootBar.Checked = !(AppConfig.Get("keyboard_boot_bar") == 0);
-            checkSleepBar.Checked = !(AppConfig.Get("keyboard_sleep_bar") == 0);
-            checkShutdownBar.Checked = !(AppConfig.Get("keyboard_shutdown_bar") == 0);
+            checkAwakeBar.Checked = AppConfig.IsNotFalse("keyboard_awake_bar");
+            checkBootBar.Checked = AppConfig.IsNotFalse("keyboard_boot_bar");
+            checkSleepBar.Checked = AppConfig.IsNotFalse("keyboard_sleep_bar");
+            checkShutdownBar.Checked = AppConfig.IsNotFalse("keyboard_shutdown_bar");
 
             // Lid
-            checkAwakeLid.Checked = !(AppConfig.Get("keyboard_awake_lid") == 0);
-            checkBootLid.Checked = !(AppConfig.Get("keyboard_boot_lid") == 0);
-            checkSleepLid.Checked = !(AppConfig.Get("keyboard_sleep_lid") == 0);
-            checkShutdownLid.Checked = !(AppConfig.Get("keyboard_shutdown_lid") == 0);
+            checkAwakeLid.Checked = AppConfig.IsNotFalse("keyboard_awake_lid");
+            checkBootLid.Checked = AppConfig.IsNotFalse("keyboard_boot_lid");
+            checkSleepLid.Checked = AppConfig.IsNotFalse("keyboard_sleep_lid");
+            checkShutdownLid.Checked = AppConfig.IsNotFalse("keyboard_shutdown_lid");
 
             // Logo
-            checkAwakeLogo.Checked = !(AppConfig.Get("keyboard_awake_logo") == 0);
-            checkBootLogo.Checked = !(AppConfig.Get("keyboard_boot_logo") == 0);
-            checkSleepLogo.Checked = !(AppConfig.Get("keyboard_sleep_logo") == 0);
-            checkShutdownLogo.Checked = !(AppConfig.Get("keyboard_shutdown_logo") == 0);
+            checkAwakeLogo.Checked = AppConfig.IsNotFalse("keyboard_awake_logo");
+            checkBootLogo.Checked = AppConfig.IsNotFalse("keyboard_boot_logo");
+            checkSleepLogo.Checked = AppConfig.IsNotFalse("keyboard_sleep_logo");
+            checkShutdownLogo.Checked = AppConfig.IsNotFalse("keyboard_shutdown_logo");
 
             checkAwake.CheckedChanged += CheckPower_CheckedChanged;
             checkBoot.CheckedChanged += CheckPower_CheckedChanged;
@@ -265,10 +271,21 @@ namespace GHelper
 
         private void InitServices()
         {
-            if (OptimizationService.IsRunning()) buttonServices.Text = Properties.Strings.Stop;
-            else buttonServices.Text = Properties.Strings.Start;
 
-            labelServices.Text = Properties.Strings.AsusServicesRunning + ":  " + OptimizationService.GetRunningCount();
+            int servicesCount = OptimizationService.GetRunningCount();
+
+            if (servicesCount > 0)
+            {
+                buttonServices.Text = Properties.Strings.Stop;
+                labelServices.ForeColor = colorTurbo;
+            }
+            else
+            {
+                buttonServices.Text = Properties.Strings.Start;
+                labelServices.ForeColor = colorStandard;
+            }
+
+            labelServices.Text = Properties.Strings.AsusServicesRunning + ":  " + servicesCount;
             buttonServices.Enabled = true;
 
         }
@@ -420,29 +437,7 @@ namespace GHelper
             AppConfig.Set("keyboard_sleep_logo", (checkSleepLogo.Checked ? 1 : 0));
             AppConfig.Set("keyboard_shutdown_logo", (checkShutdownLogo.Checked ? 1 : 0));
 
-            List<AuraDev19b6> flags = new List<AuraDev19b6>();
-
-            if (checkAwake.Checked) flags.Add(AuraDev19b6.AwakeKeyb);
-            if (checkBoot.Checked) flags.Add(AuraDev19b6.BootKeyb);
-            if (checkSleep.Checked) flags.Add(AuraDev19b6.SleepKeyb);
-            if (checkShutdown.Checked) flags.Add(AuraDev19b6.ShutdownKeyb);
-
-            if (checkAwakeBar.Checked) flags.Add(AuraDev19b6.AwakeBar);
-            if (checkBootBar.Checked) flags.Add(AuraDev19b6.BootBar);
-            if (checkSleepBar.Checked) flags.Add(AuraDev19b6.SleepBar);
-            if (checkShutdownBar.Checked) flags.Add(AuraDev19b6.ShutdownBar);
-
-            if (checkAwakeLid.Checked) flags.Add(AuraDev19b6.AwakeLid);
-            if (checkBootLid.Checked) flags.Add(AuraDev19b6.BootLid);
-            if (checkSleepLid.Checked) flags.Add(AuraDev19b6.SleepLid);
-            if (checkShutdownLid.Checked) flags.Add(AuraDev19b6.ShutdownLid);
-
-            if (checkAwakeLogo.Checked) flags.Add(AuraDev19b6.AwakeLogo);
-            if (checkBootLogo.Checked) flags.Add(AuraDev19b6.BootLogo);
-            if (checkSleepLogo.Checked) flags.Add(AuraDev19b6.SleepLogo);
-            if (checkShutdownLogo.Checked) flags.Add(AuraDev19b6.ShutdownLogo);
-
-            AsusUSB.ApplyAuraPower(flags);
+            AsusUSB.ApplyAuraPower();
 
         }
 

@@ -157,7 +157,7 @@
     <value>Zastosuj limity</value>
   </data>
   <data name="ApplyWindowsPowerPlan" xml:space="preserve">
-    <value>Automatycznie dostosuj Plan Zasilania Windows</value>
+    <value>Dostosuj systemowy Tryb Zasilania</value>
   </data>
   <data name="AsusServicesRunning" xml:space="preserve">
     <value>Uruchomione usługi Asus</value>
@@ -221,6 +221,9 @@
   </data>
   <data name="BrightnessUp" xml:space="preserve">
     <value>Zwiększ jasność</value>
+  </data>
+  <data name="Charging" xml:space="preserve">
+    <value>Charging</value>
   </data>
   <data name="Color" xml:space="preserve">
     <value>Kolor</value>
@@ -445,6 +448,12 @@ Nadal chcesz kontynuować?</value>
   </data>
   <data name="RunOnStartup" xml:space="preserve">
     <value>Uruchom przy starcie systemu</value>
+  </data>
+  <data name="ScreenPadDown" xml:space="preserve">
+    <value>Zmniejsz jasność ScreenPad</value>
+  </data>
+  <data name="ScreenPadUp" xml:space="preserve">
+    <value>Zwiększ jasność ScreenPad</value>
   </data>
   <data name="Shutdown" xml:space="preserve">
     <value>Zamknij</value>

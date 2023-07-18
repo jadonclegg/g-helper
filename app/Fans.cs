@@ -285,6 +285,19 @@ namespace GHelper
 
         private void VisualiseAdvanced()
         {
+            if (!RyzenControl.IsSupportedUV())
+            {
+                panelTitleAdvanced.Visible = false;
+                labelRisky.Visible = false;
+                panelUV.Visible = false;
+                panelUViGPU.Visible = false;
+            }
+
+            if (!RyzenControl.IsSupportedUV())
+            {
+                panelUViGPU.Visible = false;
+            }
+
             labelUV.Text = trackUV.Value.ToString();
             labelUViGPU.Text = trackUViGPU.Value.ToString();
             labelTemp.Text = (trackTemp.Value < RyzenControl.MaxTemp) ? trackTemp.Value.ToString() + "°C" : "Default";
@@ -398,7 +411,7 @@ namespace GHelper
                 return;
             }
 
-            if (HardwareControl.GpuControl is null) HardwareControl.RecreateGpuControl();
+            if (HardwareControl.GpuControl is null || !HardwareControl.GpuControl.IsValid) HardwareControl.RecreateGpuControl();
 
             if (HardwareControl.GpuControl is not null && HardwareControl.GpuControl.IsNvidia)
             {

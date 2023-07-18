@@ -146,6 +146,11 @@ namespace GHelper.Input
 
         }
 
+        static bool IsManualBrightness()
+        {
+            return AppConfig.ContainsModel("TUF") && !AppConfig.ContainsModel("FA506");
+        }
+
         public void KeyPressed(object sender, KeyPressedEventArgs e)
         {
 
@@ -166,6 +171,13 @@ namespace GHelper.Input
                         case Keys.F4:
                             KeyProcess("m3");
                             return;
+                    }
+                }
+
+                if (AppConfig.ContainsModel("Z13")) 
+                {
+                    switch (e.Key)
+                    {
                         case Keys.F11:
                             HandleEvent(199);
                             return;
@@ -210,11 +222,11 @@ namespace GHelper.Input
                         KeyboardHook.KeyPress(Keys.Snapshot);
                         break;
                     case Keys.F7:
-                        //if (AppConfig.ContainsModel("TUF")) Program.toast.RunToast(ScreenBrightness.Adjust(-10) + "%", ToastIcon.BrightnessDown);
+                        if (IsManualBrightness()) Program.toast.RunToast(ScreenBrightness.Adjust(-10) + "%", ToastIcon.BrightnessDown);
                         HandleOptimizationEvent(16);
                         break;
                     case Keys.F8:
-                        // if (AppConfig.ContainsModel("TUF")) Program.toast.RunToast(ScreenBrightness.Adjust(+10) + "%", ToastIcon.BrightnessUp);
+                        if (IsManualBrightness()) Program.toast.RunToast(ScreenBrightness.Adjust(+10) + "%", ToastIcon.BrightnessUp);
                         HandleOptimizationEvent(32);
                         break;
                     case Keys.F9:
@@ -322,6 +334,12 @@ namespace GHelper.Input
                     break;
                 case "brightness_down":
                     HandleOptimizationEvent(16);
+                    break;
+                case "screenpad_up":
+                    SetScreenpad(10);
+                    break;
+                case "screenpad_down":
+                    SetScreenpad(-10);
                     break;
                 case "custom":
                     CustomKey(name);
@@ -532,6 +550,21 @@ namespace GHelper.Input
             Program.toast.RunToast(backlightNames[backlight], delta > 0 ? ToastIcon.BacklightUp : ToastIcon.BacklightDown);
 
         }
+
+        public static void SetScreenpad(int delta)
+        {
+            int brightness = AppConfig.Get("screenpad", 100);
+            brightness = Math.Max(Math.Min(100, brightness + delta), 0);
+
+            AppConfig.Set("screenpad", brightness);
+
+            Program.acpi.DeviceSet(AsusACPI.ScreenPadBrightness, (brightness*255/100), "Screenpad");
+            if (brightness == 0) Program.acpi.DeviceSet(AsusACPI.ScreenPadToggle, brightness, "ScreenpadToggle");
+
+            Program.toast.RunToast($"Screen Pad {brightness}", delta > 0 ? ToastIcon.BrightnessUp : ToastIcon.BrightnessDown);
+
+        }
+
 
         static void LaunchProcess(string command = "")
         {

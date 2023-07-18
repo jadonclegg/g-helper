@@ -127,7 +127,7 @@
     <value>集显模式</value>
   </data>
   <data name="AlertUltimateOff" xml:space="preserve">
-    <value>关闭独显直连需要重新启动</value>
+    <value>关闭独显直连需要重启</value>
   </data>
   <data name="AlertUltimateOn" xml:space="preserve">
     <value>切换到独显直连需要重启</value>
@@ -199,7 +199,7 @@
     <value>唤醒时</value>
   </data>
   <data name="BacklightTimeout" xml:space="preserve">
-    <value>背光超时时间 (0表示长亮)</value>
+    <value>插电/电池时背光时间 (0表示长亮)</value>
   </data>
   <data name="Balanced" xml:space="preserve">
     <value>平衡模式</value>
@@ -221,6 +221,9 @@
   </data>
   <data name="BrightnessUp" xml:space="preserve">
     <value>提高亮度</value>
+  </data>
+  <data name="Charging" xml:space="preserve">
+    <value>充电中</value>
   </data>
   <data name="Color" xml:space="preserve">
     <value>颜色</value>
@@ -291,7 +294,7 @@
     <value>风扇</value>
   </data>
   <data name="FansPower" xml:space="preserve">
-    <value>风扇与电源设置</value>
+    <value>高级设置</value>
   </data>
   <data name="FnLock" xml:space="preserve">
     <value>打开FnLock (无需按下FN使用FN+(F1-F12)热键)</value>
@@ -336,7 +339,7 @@
     <value>当切换到集显模式时，停止所有正在使用独显的应用</value>
   </data>
   <data name="LaptopBacklight" xml:space="preserve">
-    <value>笔记本背光</value>
+    <value>背光</value>
   </data>
   <data name="LaptopKeyboard" xml:space="preserve">
     <value>笔记本键盘</value>
@@ -445,6 +448,12 @@
   </data>
   <data name="RunOnStartup" xml:space="preserve">
     <value>开机自启</value>
+  </data>
+  <data name="ScreenPadDown" xml:space="preserve">
+    <value>Screenpad亮度降低</value>
+  </data>
+  <data name="ScreenPadUp" xml:space="preserve">
+    <value>Screenpad亮度增加</value>
   </data>
   <data name="Shutdown" xml:space="preserve">
     <value>关机时</value>

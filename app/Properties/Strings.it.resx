@@ -222,6 +222,9 @@
   <data name="BrightnessUp" xml:space="preserve">
     <value>Aumenta Luminosità</value>
   </data>
+  <data name="Charging" xml:space="preserve">
+    <value>Charging</value>
+  </data>
   <data name="Color" xml:space="preserve">
     <value>Colore</value>
   </data>
@@ -384,7 +387,7 @@ Sei sicuro di voler continuare?</value>
     <value>Massimo refresh rate per latenza ridotta</value>
   </data>
   <data name="MinRefreshTooltip" xml:space="preserve">
-    <value>60Hz refresh rate per rispamiare batteria</value>
+    <value>60Hz refresh rate per risparmiare batteria</value>
   </data>
   <data name="Multizone" xml:space="preserve">
     <value>Multizona</value>
@@ -445,6 +448,12 @@ Sei sicuro di voler continuare?</value>
   </data>
   <data name="RunOnStartup" xml:space="preserve">
     <value>Esegui all'Avvio</value>
+  </data>
+  <data name="ScreenPadDown" xml:space="preserve">
+    <value>Screenpad Brightness Down</value>
+  </data>
+  <data name="ScreenPadUp" xml:space="preserve">
+    <value>Screenpad Brightness Up</value>
   </data>
   <data name="Shutdown" xml:space="preserve">
     <value>Spegnimento</value>

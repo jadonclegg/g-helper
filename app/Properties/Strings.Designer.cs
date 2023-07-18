@@ -376,6 +376,15 @@ namespace GHelper.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Charging.
+        /// </summary>
+        internal static string Charging {
+            get {
+                return ResourceManager.GetString("Charging", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Color.
         /// </summary>
         internal static string Color {
@@ -1040,6 +1049,24 @@ namespace GHelper.Properties {
         internal static string RunOnStartup {
             get {
                 return ResourceManager.GetString("RunOnStartup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Screenpad Brightness Down.
+        /// </summary>
+        internal static string ScreenPadDown {
+            get {
+                return ResourceManager.GetString("ScreenPadDown", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Screenpad Brightness Up.
+        /// </summary>
+        internal static string ScreenPadUp {
+            get {
+                return ResourceManager.GetString("ScreenPadUp", resourceCulture);
             }
         }
         

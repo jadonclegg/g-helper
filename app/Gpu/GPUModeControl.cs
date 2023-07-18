@@ -36,7 +36,7 @@ namespace GHelper.Gpu
                 else
                     GpuMode = AsusACPI.GPUModeStandard;
 
-                // Ultimate mode not suported
+                // Ultimate mode not supported
                 if (mux != 1) settings.HideUltimateMode();
                 // GPU mode not supported
                 if (eco < 0 && mux < 0) settings.HideGPUModes();
@@ -154,7 +154,7 @@ namespace GHelper.Gpu
 
                 if (eco == 0)
                 {
-                    await Task.Delay(TimeSpan.FromMilliseconds(5000));
+                    await Task.Delay(TimeSpan.FromMilliseconds(3000));
                     HardwareControl.RecreateGpuControl();
                     Program.modeControl.SetGPUClocks(false);
                 }

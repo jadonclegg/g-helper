@@ -18,7 +18,7 @@ Lightweight Armoury Crate alternative for Asus laptops. A small utility that all
 5. FN-Lock
 6. Doesn't need administrator privileges to run (*)
 
-## [:floppy_disk: Download App](https://github.com/seerge/g-helper/releases/latest/download/GHelper.zip)
+# [:floppy_disk: Download G-Helper App](https://github.com/seerge/g-helper/releases/latest/download/GHelper.zip)
 
 If you like this app, please [star :star: it on Github](https://github.com/seerge/g-helper) and spread a word about it!
 #### Support project in [:euro: EUR](https://www.paypal.com/donate/?hosted_button_id=4HMSHS4EBQWTA) | [💵 USD](https://www.paypal.com/donate/?hosted_button_id=SRM6QUX6ACXDY) | [:credit_card: Stripe](https://buy.stripe.com/00gaFJ9Lf79v7WobII)
@@ -27,7 +27,7 @@ _If you post about the app - please include a link. Thanks._
 
 ![Gihhub](https://github.com/seerge/g-helper/assets/5920850/4d98465a-63a5-4498-ae14-afb3e67e7e82)
 
-### :zap: Main features
+### :zap: Features
 
 1. **Performance modes**: Silent - Balanced - Turbo (built-in, with default fan curves)
 2. **GPU modes**: Eco - Standard - Ultimate - Optimized
@@ -40,6 +40,7 @@ _If you post about the app - please include a link. Thanks._
 9. Battery charge limit to preserve battery health
 10. NVidia GPU overclocking
 11. XG Mobile Control
+12. AMD CPU Undervolting
 
 ![Screenshot 2023-04-13 190951](https://user-images.githubusercontent.com/5920850/231859391-c4963af4-491c-4523-95d4-0bdcfd7cfd6f.png)
 
@@ -216,7 +217,7 @@ App supports custom actions for M3, M4 and FN+F4 hotkeys. To set them select "Cu
 2. To simulate any windows key - put appropriate keycode into "action" field, for example ``0x2C`` for Print screen. 
 Full list of keycodes https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 
-![Screenshot 2023-06-04 232848](https://github.com/seerge/g-helper/assets/5920850/3db6f058-af2b-4220-9ac9-3b812ab09903)
+![Screenshot 2023-07-17 192155](https://github.com/seerge/g-helper/assets/5920850/e450e124-1589-4787-bce8-7c37ffe72fbd)
 
 ### Workaround for [bugged bios on G15](https://github.com/seerge/g-helper/issues/253) when external monitor is connected
 
